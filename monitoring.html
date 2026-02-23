@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мониторинг — ComplianceRadar</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2eb;
+    --cream: #ede9de;
+    --accent: #c8392b;
+    --accent-light: #e8503f;
+    --gold: #b8972a;
+    --mid: #2a2a2a;
+    --gray: #6b6b6b;
+    --border: rgba(200,190,170,0.2);
+    --green: #4caf7d;
+    --API: 'https://fnsbot-production.up.railway.app';
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    background: rgba(10,10,10,0.85);
+  }
+
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a.active { color: var(--white); }
+
+  .nav-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .nav-cta:hover { background: var(--accent); color: var(--white); }
+
+  /* BURGER */
+  .burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+    z-index: 200;
+  }
+  .burger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--white); transition: all 0.3s ease; transform-origin: center;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,10,10,0.98);
+    z-index: 150;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(20px);
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+    padding: 20px 40px;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+  .mobile-menu a:first-child { border-top: 1px solid var(--border); }
+  .mobile-menu a:hover { color: var(--gold); }
+
+  /* PAGE HEADER */
+  .page-header {
+    padding: 140px 48px 60px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+    background: linear-gradient(180deg, rgba(17,17,17,0.5) 0%, transparent 100%);
+  }
+
+  .page-header-left {}
+
+  .page-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .page-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--gold);
+  }
+
+  .page-title {
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1.1;
+    font-weight: 700;
+  }
+
+  /* STATUS INDICATOR */
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gray);
+  }
+
+  .status-dot.online { background: var(--green); animation: pulse 2s ease-in-out infinite; }
+  .status-dot.error { background: var(--accent); }
+
+  /* MAIN CONTENT */
+  .main {
+    padding: 48px 48px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .stat-card {
+    background: #0f0f0f;
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+  }
+
+  .stat-card:hover::before { transform: scaleX(1); }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 12px;
+  }
+
+  .stat-value {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .stat-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(107,107,107,0.6);
+    letter-spacing: 0.08em;
+  }
+
+  .stat-skeleton {
+    height: 42px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 2px;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 6px;
+  }
+
+  @keyframes shimmer {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+  }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--white);
+    color: var(--white);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .filter-btn.urgent.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200,57,43,0.08);
+  }
+
+  .action-btns {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn-parse {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-parse:hover { background: var(--accent-light); transform: translateY(-1px); }
+  .btn-parse:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-refresh {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-refresh:hover { border-color: var(--white); background: rgba(255,255,255,0.04); }
+
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* DOCUMENTS TABLE */
+  .docs-section {}
+
+  .docs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .docs-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .docs-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+  }
+
+  /* DOCUMENT CARDS */
+  .doc-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .doc-card {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: start;
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .doc-card:hover { background: rgba(255,255,255,0.015); margin: 0 -48px; padding-left: 48px; padding-right: 48px; }
+
+  .doc-index {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(107,107,107,0.4);
+    letter-spacing: 0.08em;
+    min-width: 28px;
+    padding-top: 3px;
+  }
+
+  .doc-body {}
+
+  .doc-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .doc-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(184,151,42,0.3);
+    padding: 2px 8px;
+  }
+
+  .doc-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gray);
+    letter-spacing: 0.06em;
+  }
+
+  .doc-urgent {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(200,57,43,0.1);
+    border: 1px solid rgba(200,57,43,0.3);
+    padding: 2px 8px;
+    animation: urgentPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes urgentPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .doc-title {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    color: var(--white);
+  }
+
+  .doc-summary {
+    font-size: 14px;
+    line-height: 1.65;
+    color: rgba(245,242,235,0.55);
+    max-width: 720px;
+  }
+
+  .doc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .doc-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: rgba(184,151,42,0.7);
+    border: 1px solid rgba(184,151,42,0.2);
+    padding: 2px 8px;
+  }
+
+  .doc-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+
+  .doc-link:hover { border-color: var(--white); color: var(--white); }
+
+  /* SKELETON CARD */
+  .doc-skeleton {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sk-line {
+    height: 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 2px;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .sk-title { height: 20px; width: 70%; }
+  .sk-summary { width: 90%; }
+  .sk-summary2 { width: 60%; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    padding: 80px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+  }
+
+  .empty-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: rgba(245,242,235,0.4);
+  }
+
+  .empty-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(107,107,107,0.5);
+    letter-spacing: 0.08em;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 1000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    padding: 16px 24px;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    background: rgba(20,20,20,0.95);
+    color: var(--white);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 340px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(76,175,125,0.5); }
+  .toast.error { border-color: rgba(200,57,43,0.5); }
+
+  /* SOURCES BREAKDOWN */
+  .sources-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .source-stat {
+    background: #0a0a0a;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .source-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+  }
+
+  .source-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--white);
+  }
+
+  /* LOAD MORE */
+  .load-more-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+  }
+
+  .btn-load-more {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    background: transparent;
+    color: var(--gray);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-load-more:hover { color: var(--white); border-color: var(--white); }
+  .btn-load-more:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #050505;
+  }
+
+  .footer-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(107,107,107,0.5);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 32px;
+  }
+
+  .footer-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--white); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links, .nav-cta { display: none; }
+    .burger { display: flex; }
+    .page-header { padding: 120px 24px 48px; }
+    .main { padding: 32px 24px 60px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .sources-row { grid-template-columns: 1fr; }
+    .doc-card { grid-template-columns: 1fr; gap: 12px; }
+    .doc-card:hover { margin: 0; padding-left: 0; padding-right: 0; }
+    .doc-index { display: none; }
+    footer { flex-direction: column; gap: 20px; text-align: center; padding: 32px 24px; }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  }
+
+  @media (max-width: 600px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .controls { flex-direction: column; align-items: flex-start; }
+    .action-btns { width: 100%; }
+    .btn-parse, .btn-refresh { flex: 1; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar
+  </a>
+  <ul class="nav-links">
+    <li><a href="product.html">Продукт</a></li>
+    <li><a href="industries.html">Отрасли</a></li>
+    <li><a href="index.html#pricing">Тарифы</a></li>
+    <li><a href="monitoring.html" class="active">Мониторинг</a></li>
+    <li><a href="contacts.html">Контакты</a></li>
+  </ul>
+  <div id="userPanel" style="display:none;font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:.08em;display:flex;align-items:center;gap:16px;"><span id="userName" style="color:var(--gray)"></span><button onclick="logout()" style="background:transparent;border:1px solid var(--border);color:var(--gray);font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:.08em;padding:8px 14px;cursor:pointer;transition:all .2s" onmouseover="this.style.color='var(--white)';this.style.borderColor='var(--white)'" onmouseout="this.style.color='var(--gray)';this.style.borderColor='var(--border)'">Выйти</button></div>
+  <button class="burger" id="burger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="product.html">Продукт</a>
+  <a href="industries.html">Отрасли</a>
+  <a href="index.html#pricing">Тарифы</a>
+  <a href="monitoring.html">Мониторинг</a>
+  <a href="contacts.html">Контакты</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-tag">Live</div>
+    <h1 class="page-title">Лента мониторинга</h1>
+  </div>
+  <div class="status-indicator">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText" style="color:var(--gray);">Подключение...</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-label">Всего документов</div>
+      <div class="stat-skeleton" id="skTotal"></div>
+      <div class="stat-value" id="statTotal" style="display:none"></div>
+      <div class="stat-sub">в базе данных</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Обработано Claude</div>
+      <div class="stat-skeleton" id="skProcessed"></div>
+      <div class="stat-value" id="statProcessed" style="display:none"></div>
+      <div class="stat-sub">проанализировано</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Срочных</div>
+      <div class="stat-skeleton" id="skUrgent"></div>
+      <div class="stat-value" id="statUrgent" style="display:none" style="color:var(--accent)"></div>
+      <div class="stat-sub">вступают в силу &lt;30 дней</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Подписчиков</div>
+      <div class="stat-skeleton" id="skSubs"></div>
+      <div class="stat-value" id="statSubs" style="display:none"></div>
+      <div class="stat-sub">активных</div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="sources-row" id="sourcesRow">
+    <div class="source-stat">
+      <span class="source-name">pravo.gov.ru</span>
+      <span class="source-count" id="srcPravo">—</span>
+    </div>
+    <div class="source-stat">
+      <span class="source-name">nalog.gov.ru</span>
+      <span class="source-count" id="srcNalog">—</span>
+    </div>
+    <div class="source-stat">
+      <span class="source-name">cbr.ru</span>
+      <span class="source-count" id="srcCbr">—</span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="filters">
+      <button class="filter-btn" id="filterMy" onclick="setPersonal(this)">★ Мои</button>
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">Все</button>
+      <button class="filter-btn urgent" data-filter="urgent" onclick="setFilter('urgent', this)">⚠ Срочные</button>
+      <button class="filter-btn" data-filter="pravo" onclick="setFilter('pravo', this)">pravo.gov.ru</button>
+      <button class="filter-btn" data-filter="nalog" onclick="setFilter('nalog', this)">nalog.gov.ru</button>
+    </div>
+    <div class="action-btns">
+      <button class="btn-refresh" onclick="loadAll()" id="refreshBtn">
+        <span id="refreshIcon">↻</span> Обновить
+      </button>
+      <button class="btn-parse" onclick="triggerParse()" id="parseBtn">
+        ▶ Запустить парсинг
+      </button>
+    </div>
+  </div>
+
+  <!-- DOCUMENTS -->
+  <div class="docs-section">
+    <div class="docs-header">
+      <span class="docs-title">Нормативные документы</span>
+      <span class="docs-count" id="docsCount">загрузка...</span>
+    </div>
+    <div class="doc-list" id="docList">
+      <!-- skeletons -->
+      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+    </div>
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+      <button class="btn-load-more" id="loadMoreBtn" onclick="loadMore()">Загрузить ещё</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar · 2026
+  </div>
+  <div class="footer-links">
+    <a href="#">Политика конфиденциальности</a>
+    <a href="#">Договор оферты</a>
+    <a href="contacts.html">Контакты</a>
+  </div>
+  <div class="footer-copy">© 2026 ComplianceRadar. Все права защищены.</div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = 'https://fnsbot-production.up.railway.app';
+  const CR_TOKEN = localStorage.getItem('cr_token');
+  const CR_USER = JSON.parse(localStorage.getItem('cr_user') || 'null');
+  let showPersonal = !!CR_TOKEN;
+  // Auth check
+  const crUser = JSON.parse(localStorage.getItem('cr_user') || 'null');
+  const crProfile = crUser ? JSON.parse(localStorage.getItem(`cr_profile_${crUser.email}`) || 'null') : null;
+  let currentFilter = 'all';
+  let currentOffset = 0;
+  const PAGE_SIZE = 20;
+  let totalDocs = 0;
+
+  // ── UTILS ──────────────────────────────────────────────────────
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => { t.className = 'toast'; }, 4000);
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function setStatus(online) {
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    if (online) {
+      dot.className = 'status-dot online';
+      txt.textContent = 'API онлайн';
+      txt.style.color = 'var(--green)';
+    } else {
+      dot.className = 'status-dot error';
+      txt.textContent = 'Ошибка подключения';
+      txt.style.color = 'var(--accent)';
+    }
+  }
+
+  // ── STATS ──────────────────────────────────────────────────────
+
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API}/stats`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setStatus(true);
+
+      // Показываем числа
+      const fields = [
+        ['skTotal', 'statTotal', data.documents.total],
+        ['skProcessed', 'statProcessed', data.documents.processed],
+        ['skUrgent', 'statUrgent', data.documents.urgent],
+        ['skSubs', 'statSubs', data.subscribers],
+      ];
+
+      fields.forEach(([skId, valId, val]) => {
+        document.getElementById(skId).style.display = 'none';
+        const el = document.getElementById(valId);
+        el.textContent = val ?? '0';
+        el.style.display = 'block';
+      });
+
+      // Срочные — красным
+      document.getElementById('statUrgent').style.color = 'var(--accent)';
+
+      // Источники
+      const s = data.sources || {};
+      document.getElementById('srcPravo').textContent = s['pravo.gov.ru'] ?? 0;
+      document.getElementById('srcNalog').textContent = s['nalog.gov.ru'] ?? 0;
+      document.getElementById('srcCbr').textContent = s['cbr.ru'] ?? 0;
+
+    } catch (e) {
+      setStatus(false);
+      ['skTotal','skProcessed','skUrgent','skSubs'].forEach(id => {
+        const sk = document.getElementById(id);
+        sk.style.background = 'rgba(200,57,43,0.08)';
+      });
+    }
+  }
+
+  // ── DOCUMENTS ─────────────────────────────────────────────────
+
+  function buildParams(offset = 0) {
+    const params = new URLSearchParams({ limit: PAGE_SIZE, offset });
+    if (currentFilter === 'urgent') params.set('urgency', 'true');
+    if (currentFilter === 'pravo') params.set('source', 'pravo.gov.ru');
+    if (currentFilter === 'nalog') params.set('source', 'nalog.gov.ru');
+    return params.toString();
+  }
+
+  function getDocsUrl(offset) {
+    if (showPersonal && currentFilter === 'all' && CR_TOKEN) {
+      return `${API}/documents/my?limit=${PAGE_SIZE}&offset=${offset}`;
+    }
+    return `${API}/documents?${buildParams(offset)}`;
+  }
+
+  function renderDoc(doc, index) {
+    const tags = (doc.tags || []).slice(0, 5);
+    const tagsHtml = tags.length
+      ? `<div class="doc-tags">${tags.map(t => `<span class="doc-tag">${t}</span>`).join('')}</div>`
+      : '';
+
+    const urgentBadge = doc.urgency
+      ? `<span class="doc-urgent">⚠ Срочно</span>`
+      : '';
+
+    const summary = doc.summary
+      ? `<p class="doc-summary">${doc.summary}</p>`
+      : `<p class="doc-summary" style="opacity:0.35;font-style:italic;">Анализ ИИ в процессе...</p>`;
+
+    return `
+      <div class="doc-card">
+        <span class="doc-index">${String(index).padStart(2, '0')}</span>
+        <div class="doc-body">
+          <div class="doc-meta">
+            <span class="doc-source">${doc.source}</span>
+            <span class="doc-date">${formatDate(doc.published_at)}</span>
+            ${urgentBadge}
+          </div>
+          <h3 class="doc-title">${doc.title}</h3>
+          ${summary}
+          ${tagsHtml}
+        </div>
+        <a class="doc-link" href="${doc.url}" target="_blank" rel="noopener">Открыть →</a>
+      </div>
+    `;
+  }
+
+  async function loadDocs(reset = true) {
+    if (reset) {
+      currentOffset = 0;
+      document.getElementById('docList').innerHTML = `
+        <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+        <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+        <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
+      `;
+    }
+
+    try {
+      const headers = CR_TOKEN ? { 'Authorization': `Bearer ${CR_TOKEN}` } : {};
+      const res = await fetch(getDocsUrl(currentOffset), { headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      totalDocs = data.total;
+      const docs = data.documents || [];
+
+      if (reset) document.getElementById('docList').innerHTML = '';
+
+      document.getElementById('docsCount').textContent = `${totalDocs} документов`;
+
+      if (docs.length === 0 && reset) {
+        document.getElementById('docList').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div class="empty-title">Документов пока нет</div>
+            <div class="empty-sub">Запустите парсинг, чтобы загрузить первые данные</div>
+          </div>
+        `;
+      } else {
+        const list = document.getElementById('docList');
+        docs.forEach((doc, i) => {
+          list.insertAdjacentHTML('beforeend', renderDoc(doc, currentOffset + i + 1));
+        });
+        currentOffset += docs.length;
+      }
+
+      // Показываем "загрузить ещё"
+      const loadMoreWrap = document.getElementById('loadMoreWrap');
+      if (currentOffset < totalDocs) {
+        loadMoreWrap.style.display = 'flex';
+        document.getElementById('loadMoreBtn').disabled = false;
+      } else {
+        loadMoreWrap.style.display = 'none';
+      }
+
+    } catch (e) {
+      document.getElementById('docsCount').textContent = 'ошибка загрузки';
+      if (reset) {
+        document.getElementById('docList').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠</div>
+            <div class="empty-title">Ошибка соединения</div>
+            <div class="empty-sub">Не удалось подключиться к API. Проверьте что сервис запущен на Railway.</div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  async function loadMore() {
+    const btn = document.getElementById('loadMoreBtn');
+    btn.disabled = true;
+    btn.textContent = 'Загрузка...';
+    await loadDocs(false);
+    btn.textContent = 'Загрузить ещё';
+  }
+
+  async function loadAll() {
+    const icon = document.getElementById('refreshIcon');
+    icon.classList.add('spin');
+    await Promise.all([loadStats(), loadDocs(true)]);
+    icon.classList.remove('spin');
+  }
+
+  // ── FILTER ────────────────────────────────────────────────────
+
+  function setPersonal(btn) {
+    showPersonal = true;
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadDocs(true);
+  }
+
+  function setFilter(filter, btn) {
+    showPersonal = false;
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadDocs(true);
+  }
+
+  // ── PARSE TRIGGER ─────────────────────────────────────────────
+
+  async function triggerParse() {
+    const btn = document.getElementById('parseBtn');
+    btn.disabled = true;
+    btn.textContent = '▶ Запускаем...';
+
+    try {
+      const res = await fetch(`${API}/admin/parse-now`, { method: 'POST' });
+      if (!res.ok) throw new Error();
+      showToast('✓ Парсинг запущен в фоне. Обновите страницу через 1–2 минуты.', 'success');
+    } catch (e) {
+      showToast('✗ Ошибка запуска парсинга. Проверьте API.', 'error');
+    } finally {
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = '▶ Запустить парсинг';
+      }, 3000);
+    }
+  }
+
+  // ── BURGER ────────────────────────────────────────────────────
+
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // ── INIT ──────────────────────────────────────────────────────
+
+  // Auth check
+  const crUser = JSON.parse(localStorage.getItem('cr_user') || 'null');
+  if (crUser) {
+    const panel = document.getElementById('userPanel');
+    panel.style.display = 'flex';
+    document.getElementById('userName').textContent = crUser.name || crUser.email;
+  }
+
+  function logout() {
+    localStorage.removeItem('cr_user');
+    window.location.href = 'login.html';
+  }
+
+  // Auth + user panel
+  if (CR_USER) {
+    const panel = document.getElementById('userPanel');
+    panel.style.display = 'flex';
+    document.getElementById('userName').textContent = CR_USER.name || CR_USER.email;
+  }
+
+  function logout() {
+    fetch(`${API}/auth/logout`, { method: 'POST', headers: CR_TOKEN ? { 'Authorization': `Bearer ${CR_TOKEN}` } : {} }).catch(()=>{});
+    localStorage.removeItem('cr_token');
+    localStorage.removeItem('cr_user');
+    window.location.href = 'login.html';
+  }
+
+  loadAll();
+
+  // Автообновление каждые 2 минуты
+  setInterval(loadStats, 120000);
+</script>
+</body>
+</html>

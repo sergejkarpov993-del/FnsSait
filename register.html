@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Регистрация — ComplianceRadar</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--black:#0a0a0a;--white:#f5f2eb;--accent:#c8392b;--accent-light:#e8503f;--gold:#b8972a;--gray:#6b6b6b;--border:rgba(200,190,170,0.2);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--black);color:var(--white);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4;}
+  .left{position:relative;overflow:hidden;border-right:1px solid var(--border);}
+  .left-bg{position:absolute;inset:0;}
+  .left-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.2) saturate(0.3);}
+  .left-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,10,.7) 0%,transparent 60%),linear-gradient(to top,rgba(10,10,10,.8) 0%,transparent 50%);}
+  .left-content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:48px;}
+  .logo{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--white);display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  .steps{display:flex;flex-direction:column;gap:0;}
+  .step-item{display:flex;gap:16px;align-items:flex-start;padding:20px 0;border-top:1px solid var(--border);}
+  .step-item:last-child{border-bottom:1px solid var(--border);}
+  .step-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--gold);border:1px solid rgba(184,151,42,.3);width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+  .step-text{font-size:14px;line-height:1.5;color:rgba(245,242,235,.6);}
+  .step-text strong{color:var(--white);font-weight:700;display:block;margin-bottom:2px;}
+  .right{display:flex;align-items:center;justify-content:center;padding:40px 48px;background:#080808;overflow-y:auto;}
+  .form-box{width:100%;max-width:420px;animation:fadeUp .6s ease forwards;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .form-tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+  .form-tag::before{content:'';display:inline-block;width:20px;height:1px;background:var(--gold);}
+  .form-title{font-size:34px;font-weight:700;line-height:1.1;margin-bottom:8px;}
+  .form-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray);letter-spacing:.06em;margin-bottom:32px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .field{margin-bottom:16px;}
+  .field label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:8px;}
+  .field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.06em;padding:14px 16px;outline:none;transition:border-color .2s,background .2s;-webkit-appearance:none;}
+  .field input:focus{border-color:rgba(200,190,170,.5);background:rgba(255,255,255,.06);}
+  .field input.err{border-color:var(--accent);}
+  .field-error{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--accent);margin-top:6px;display:none;}
+  .field-error.show{display:block;}
+  .pass-strength{margin-top:8px;display:flex;gap:4px;}
+  .strength-bar{flex:1;height:3px;background:rgba(255,255,255,.08);transition:background .3s;}
+  .strength-bar.weak{background:var(--accent);}
+  .strength-bar.medium{background:var(--gold);}
+  .strength-bar.strong{background:#4caf7d;}
+  .strength-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);margin-top:6px;}
+  .agree{display:flex;gap:12px;align-items:flex-start;margin:20px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:.04em;line-height:1.5;}
+  .agree input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:1px;accent-color:var(--accent);cursor:pointer;}
+  .agree a{color:var(--white);text-decoration:none;border-bottom:1px solid var(--border);}
+  .global-error{background:rgba(200,57,43,.1);border:1px solid rgba(200,57,43,.3);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--accent);padding:12px 16px;margin-bottom:16px;display:none;}
+  .global-error.show{display:block;}
+  .btn-submit{width:100%;background:var(--accent);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:16px;border:none;cursor:pointer;transition:background .2s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-submit:hover{background:var(--accent-light);transform:translateY(-1px);}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .divider{display:flex;align-items:center;gap:16px;margin:20px 0;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  .divider span{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--gray);text-transform:uppercase;}
+  .switch-link{text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--gray);}
+  .switch-link a{color:var(--white);text-decoration:none;border-bottom:1px solid var(--border);}
+  .switch-link a:hover{border-color:var(--white);}
+  @media(max-width:768px){body{grid-template-columns:1fr;}.left{display:none;}.right{padding:32px 24px;align-items:flex-start;}.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="left">
+  <div class="left-bg"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&auto=format&fit=crop&q=60" alt=""></div>
+  <div class="left-content">
+    <a href="index.html" class="logo"><span class="logo-dot"></span>ComplianceRadar</a>
+    <div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;">Три шага до старта</p>
+      <div class="steps">
+        <div class="step-item"><div class="step-num">01</div><div class="step-text"><strong>Создайте аккаунт</strong>Укажите рабочий email и пароль</div></div>
+        <div class="step-item"><div class="step-num">02</div><div class="step-text"><strong>Настройте профиль</strong>Выберите отрасль и темы мониторинга</div></div>
+        <div class="step-item"><div class="step-num">03</div><div class="step-text"><strong>Получайте алерты</strong>Только релевантные изменения законодательства</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="right">
+  <div class="form-box">
+    <div class="form-tag">Регистрация</div>
+    <h1 class="form-title">Начать бесплатно</h1>
+    <p class="form-sub">30 дней пилота · Без предоплаты</p>
+    <div class="global-error" id="globalError"></div>
+    <div class="two-col">
+      <div class="field"><label>Имя</label><input type="text" id="firstName" placeholder="Иван" autocomplete="given-name"><div class="field-error" id="firstNameErr">Укажите имя</div></div>
+      <div class="field"><label>Фамилия</label><input type="text" id="lastName" placeholder="Петров" autocomplete="family-name"><div class="field-error" id="lastNameErr">Укажите фамилию</div></div>
+    </div>
+    <div class="field"><label>Рабочий email</label><input type="email" id="email" placeholder="i.petrov@company.ru" autocomplete="email"><div class="field-error" id="emailErr">Введите корректный email</div></div>
+    <div class="field"><label>Компания</label><input type="text" id="company" placeholder="ПАО Сбербанк" autocomplete="organization"><div class="field-error" id="companyErr">Укажите компанию</div></div>
+    <div class="field"><label>Должность <span style="color:var(--gray);font-size:9px;">(необязательно)</span></label><input type="text" id="position" placeholder="Chief Compliance Officer"></div>
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" id="password" placeholder="Минимум 8 символов" autocomplete="new-password" oninput="checkStrength(this.value)">
+      <div class="pass-strength"><div class="strength-bar" id="sb1"></div><div class="strength-bar" id="sb2"></div><div class="strength-bar" id="sb3"></div><div class="strength-bar" id="sb4"></div></div>
+      <div class="strength-label" id="strengthLabel"></div>
+      <div class="field-error" id="passErr">Минимум 8 символов</div>
+    </div>
+    <label class="agree"><input type="checkbox" id="agreeCheck"><span>Я согласен с <a href="#">Договором оферты</a> и <a href="#">Политикой конфиденциальности</a></span></label>
+    <button class="btn-submit" id="submitBtn" onclick="handleRegister()"><span id="btnText">Создать аккаунт →</span></button>
+    <div class="divider"><span>или</span></div>
+    <div class="switch-link">Уже есть аккаунт? <a href="login.html">Войти</a></div>
+  </div>
+</div>
+<script>
+  const API = 'https://fnsbot-production.up.railway.app';
+
+  function checkStrength(val) {
+    const bars = ['sb1','sb2','sb3','sb4'];
+    const label = document.getElementById('strengthLabel');
+    bars.forEach(id => { document.getElementById(id).className = 'strength-bar'; });
+    if (!val) { label.textContent=''; return; }
+    let s = 0;
+    if (val.length >= 8) s++;
+    if (/[A-Z]/.test(val)||/[А-Я]/.test(val)) s++;
+    if (/[0-9]/.test(val)) s++;
+    if (/[^a-zA-Zа-яА-Я0-9]/.test(val)) s++;
+    const cls = s<=1?'weak':s<=2?'medium':'strong';
+    const texts=['','Слабый','Слабый','Средний','Надёжный'];
+    for(let i=0;i<s;i++) document.getElementById(bars[i]).classList.add(cls);
+    label.textContent = s>0?texts[s]:'';
+    label.style.color = s<=1?'var(--accent)':s<=2?'var(--gold)':'#4caf7d';
+  }
+
+  async function handleRegister() {
+    const vals = {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      company: document.getElementById('company').value.trim(),
+      password: document.getElementById('password').value,
+    };
+    let ok = true;
+    const checks = [
+      ['firstName', vals.firstName.length<1, 'firstNameErr'],
+      ['lastName', vals.lastName.length<1, 'lastNameErr'],
+      ['email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(vals.email), 'emailErr'],
+      ['company', vals.company.length<1, 'companyErr'],
+      ['password', vals.password.length<8, 'passErr'],
+    ];
+    checks.forEach(([id,isErr,errId]) => {
+      document.getElementById(id).classList.toggle('err', isErr);
+      document.getElementById(errId).classList.toggle('show', isErr);
+      if (isErr) ok = false;
+    });
+    document.getElementById('globalError').classList.remove('show');
+    if (!document.getElementById('agreeCheck').checked) {
+      alert('Пожалуйста, примите условия использования'); ok = false;
+    }
+    if (!ok) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; document.getElementById('btnText').textContent = 'Создаём аккаунт...';
+
+    try {
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: vals.email, password: vals.password,
+          first_name: vals.firstName, last_name: vals.lastName,
+          company: vals.company, position: document.getElementById('position').value.trim()
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('globalError').textContent = data.detail || 'Ошибка регистрации';
+        document.getElementById('globalError').classList.add('show');
+        btn.disabled = false; document.getElementById('btnText').textContent = 'Создать аккаунт →';
+        return;
+      }
+      localStorage.setItem('cr_token', data.token);
+      localStorage.setItem('cr_user', JSON.stringify(data.user));
+      window.location.href = 'onboarding.html';
+    } catch {
+      document.getElementById('globalError').textContent = 'Нет соединения с сервером';
+      document.getElementById('globalError').classList.add('show');
+      btn.disabled = false; document.getElementById('btnText').textContent = 'Создать аккаунт →';
+    }
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleRegister(); });
+</script>
+</body>
+</html>

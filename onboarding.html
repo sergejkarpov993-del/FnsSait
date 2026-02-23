@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Настройка профиля — ComplianceRadar</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--black:#0a0a0a;--white:#f5f2eb;--accent:#c8392b;--accent-light:#e8503f;--gold:#b8972a;--mid:#2a2a2a;--gray:#6b6b6b;--border:rgba(200,190,170,0.2);--green:#4caf7d;}
+  *{margin:0;padding:0;box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{background:var(--black);color:var(--white);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4;}
+  header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border);backdrop-filter:blur(16px);background:rgba(10,10,10,0.85);}
+  .logo{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--white);display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  .progress-wrap{display:flex;align-items:center;gap:8px;}
+  .progress-step{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;display:flex;align-items:center;gap:6px;color:var(--gray);}
+  .progress-step.active{color:var(--white);}
+  .progress-step.done{color:var(--green);}
+  .step-dot{width:20px;height:20px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'JetBrains Mono',monospace;}
+  .progress-step.active .step-dot{border-color:var(--white);background:rgba(255,255,255,.06);}
+  .progress-step.done .step-dot{border-color:var(--green);color:var(--green);}
+  .progress-line{width:32px;height:1px;background:var(--border);}
+  .main{max-width:900px;margin:0 auto;padding:64px 48px 120px;}
+  .step-panel{display:none;animation:fadeIn .4s ease;}
+  .step-panel.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .step-tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+  .step-tag::before{content:'';display:inline-block;width:24px;height:1px;background:var(--gold);}
+  .step-title{font-size:clamp(28px,3.5vw,44px);font-weight:700;line-height:1.1;margin-bottom:12px;}
+  .step-sub{font-size:16px;line-height:1.7;color:rgba(245,242,235,.55);margin-bottom:48px;max-width:560px;}
+  .industry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:40px;}
+  .industry-card{background:#0d0d0d;padding:32px 28px;cursor:pointer;transition:background .2s;position:relative;user-select:none;}
+  .industry-card:hover{background:#131313;}
+  .industry-card.selected{background:#111;}
+  .industry-card.selected::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);}
+  .industry-card.selected::after{content:'✓';position:absolute;top:16px;right:16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);}
+  .ind-icon{font-size:28px;margin-bottom:14px;}
+  .ind-name{font-size:17px;font-weight:700;margin-bottom:6px;}
+  .ind-desc{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--gray);line-height:1.5;}
+  .tags-section{margin-bottom:32px;}
+  .tags-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gray);margin-bottom:16px;display:block;}
+  .tags-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .tag-btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;padding:8px 16px;border:1px solid var(--border);background:transparent;color:var(--gray);cursor:pointer;transition:all .2s;user-select:none;}
+  .tag-btn:hover{border-color:rgba(200,190,170,.4);color:var(--white);}
+  .tag-btn.selected{border-color:var(--gold);color:var(--gold);background:rgba(184,151,42,.08);}
+  .tag-btn.recommended{border-color:rgba(184,151,42,.3);color:rgba(184,151,42,.6);}
+  .tag-btn.recommended.selected{border-color:var(--gold);color:var(--gold);background:rgba(184,151,42,.08);}
+  .recommended-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .recommended-label::before{content:'★';}
+  .notif-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px;}
+  .notif-card{border:1px solid var(--border);padding:24px;cursor:pointer;transition:all .2s;background:#0d0d0d;user-select:none;position:relative;}
+  .notif-card:hover{border-color:rgba(200,190,170,.4);}
+  .notif-card.selected{border-color:var(--white);background:#111;}
+  .notif-card.selected::after{content:'✓';position:absolute;top:14px;right:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);}
+  .notif-icon{font-size:24px;margin-bottom:12px;}
+  .notif-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .notif-desc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:.04em;line-height:1.5;}
+  .selected-summary{background:rgba(184,151,42,.06);border:1px solid rgba(184,151,42,.2);padding:20px 24px;margin-bottom:32px;}
+  .summary-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .summary-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .summary-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--gold);border:1px solid rgba(184,151,42,.3);padding:3px 10px;}
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;border-top:1px solid var(--border);backdrop-filter:blur(16px);background:rgba(10,10,10,0.9);padding:20px 48px;display:flex;justify-content:space-between;align-items:center;z-index:50;}
+  .nav-hint{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:.06em;}
+  .nav-btns{display:flex;gap:12px;}
+  .btn-back{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:12px 24px;background:transparent;color:var(--gray);border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+  .btn-back:hover{color:var(--white);border-color:var(--white);}
+  .btn-next{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:12px 32px;background:var(--accent);color:var(--white);border:none;cursor:pointer;transition:background .2s,transform .1s;display:flex;align-items:center;gap:8px;}
+  .btn-next:hover{background:var(--accent-light);transform:translateY(-1px);}
+  .btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+  @media(max-width:768px){header{padding:16px 20px;}.main{padding:40px 20px 100px;}.industry-grid{grid-template-columns:1fr 1fr;}.notif-grid{grid-template-columns:1fr;}.bottom-nav{padding:16px 20px;}.progress-wrap .progress-step span{display:none;}}
+  @media(max-width:480px){.industry-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo"><span class="logo-dot"></span>ComplianceRadar</a>
+  <div class="progress-wrap">
+    <div class="progress-step active" id="pr1"><div class="step-dot" id="pd1">1</div><span>Отрасль</span></div>
+    <div class="progress-line"></div>
+    <div class="progress-step" id="pr2"><div class="step-dot" id="pd2">2</div><span>Темы</span></div>
+    <div class="progress-line"></div>
+    <div class="progress-step" id="pr3"><div class="step-dot" id="pd3">3</div><span>Уведомления</span></div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- STEP 1 -->
+  <div class="step-panel active" id="step1">
+    <div class="step-tag">Шаг 1 из 3</div>
+    <h2 class="step-title">Выберите отрасль<br>вашей компании</h2>
+    <p class="step-sub">На основе этого мы предложим релевантные темы и настроим фильтрацию документов под вашу сферу.</p>
+    <div class="industry-grid">
+      <div class="industry-card" onclick="selectIndustry('bank',this)"><div class="ind-icon">🏦</div><div class="ind-name">Банки и финтех</div><div class="ind-desc">ЦБ РФ · Basel III · АМЛ · Н1.1 · Нормативы капитала</div></div>
+      <div class="industry-card" onclick="selectIndustry('insurance',this)"><div class="ind-icon">🛡️</div><div class="ind-name">Страхование</div><div class="ind-desc">ЦБ РФ · ОСАГО · Solvency · Тарифное регулирование</div></div>
+      <div class="industry-card" onclick="selectIndustry('telecom',this)"><div class="ind-icon">📡</div><div class="ind-name">Телеком и IT</div><div class="ind-desc">152-ФЗ · Роскомнадзор · СОРМ · Локализация данных</div></div>
+      <div class="industry-card" onclick="selectIndustry('retail',this)"><div class="ind-icon">🛒</div><div class="ind-name">Ритейл и FMCG</div><div class="ind-desc">ФАС · Маркировка · Роспотребнадзор · Торговля</div></div>
+      <div class="industry-card" onclick="selectIndustry('pharma',this)"><div class="ind-icon">💊</div><div class="ind-name">Фармацевтика</div><div class="ind-desc">Росздравнадзор · ЖНВЛП · GMP · Лицензирование</div></div>
+      <div class="industry-card" onclick="selectIndustry('construction',this)"><div class="ind-icon">🏗️</div><div class="ind-name">Строительство</div><div class="ind-desc">214-ФЗ · Росреестр · СНиП · Долевое строительство</div></div>
+      <div class="industry-card" onclick="selectIndustry('energy',this)"><div class="ind-icon">⚡</div><div class="ind-name">Энергетика</div><div class="ind-desc">Ростехнадзор · ФСТЭК · Промышленная безопасность</div></div>
+      <div class="industry-card" onclick="selectIndustry('manufacturing',this)"><div class="ind-icon">🏭</div><div class="ind-name">Производство</div><div class="ind-desc">Ростехнадзор · Роспотребнадзор · ТК РФ · Экология</div></div>
+      <div class="industry-card" onclick="selectIndustry('other',this)"><div class="ind-icon">🏢</div><div class="ind-name">Другое / Холдинг</div><div class="ind-desc">Комплексный мониторинг всех ключевых регуляторов</div></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-panel" id="step2">
+    <div class="step-tag">Шаг 2 из 3</div>
+    <h2 class="step-title">Выберите темы<br>для мониторинга</h2>
+    <p class="step-sub">Рекомендованные темы подобраны по вашей отрасли. Добавьте дополнительные при необходимости.</p>
+    <div class="tags-section">
+      <div class="recommended-label">Рекомендовано для вашей отрасли</div>
+      <div class="tags-grid" id="recommendedTags"></div>
+    </div>
+    <div class="tags-section" style="margin-top:32px;">
+      <span class="tags-label">Все доступные темы</span>
+      <div class="tags-grid" id="allTags"></div>
+    </div>
+    <div class="selected-summary" id="selectedSummary" style="display:none;">
+      <div class="summary-label">Выбрано тем: <span id="tagsCount">0</span></div>
+      <div class="summary-tags" id="summaryTags"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-panel" id="step3">
+    <div class="step-tag">Шаг 3 из 3</div>
+    <h2 class="step-title">Как получать<br>уведомления?</h2>
+    <p class="step-sub">Выберите один или несколько каналов. Изменить можно в любое время в настройках профиля.</p>
+    <div class="notif-grid">
+      <div class="notif-card selected" onclick="toggleNotif('email',this)"><div class="notif-icon">📧</div><div class="notif-name">Email</div><div class="notif-desc">Мгновенный алерт на рабочий email при публикации документа</div></div>
+      <div class="notif-card" onclick="toggleNotif('digest',this)"><div class="notif-icon">📄</div><div class="notif-name">PDF-дайджест</div><div class="notif-desc">Еженедельный сводный отчёт с резюме всех изменений</div></div>
+      <div class="notif-card" onclick="toggleNotif('telegram',this)"><div class="notif-icon">✈️</div><div class="notif-name">Telegram</div><div class="notif-desc">Уведомления в Telegram-бот — мгновенно в смартфон</div></div>
+      <div class="notif-card" onclick="toggleNotif('webhook',this)"><div class="notif-icon">🔗</div><div class="notif-name">Вебхук / API</div><div class="notif-desc">POST-запрос на ваш URL — интеграция в корпоративную систему</div></div>
+    </div>
+    <div class="tags-section">
+      <span class="tags-label" style="display:block;margin-bottom:12px;">Частота уведомлений</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="tag-btn selected" onclick="selectFreq('instant',this)" id="freq-instant">Мгновенно</button>
+        <button class="tag-btn" onclick="selectFreq('daily',this)" id="freq-daily">Раз в день</button>
+        <button class="tag-btn" onclick="selectFreq('weekly',this)" id="freq-weekly">Раз в неделю</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <span class="nav-hint" id="navHint">Выберите отрасль чтобы продолжить</span>
+  <div class="nav-btns">
+    <button class="btn-back" id="backBtn" style="display:none" onclick="prevStep()">← Назад</button>
+    <button class="btn-next" id="nextBtn" onclick="nextStep()" disabled><span id="nextLabel">Далее →</span></button>
+  </div>
+</div>
+
+<script>
+  const API = 'https://fnsbot-production.up.railway.app';
+  const token = localStorage.getItem('cr_token');
+  if (!token) window.location.href = 'login.html';
+
+  let currentStep = 1;
+  let selectedIndustry = null;
+  let selectedTags = new Set();
+  let selectedNotifs = new Set(['email']);
+  let selectedFreq = 'instant';
+
+  const INDUSTRY_TAGS = {
+    bank:         ['ЦБ РФ','Н1.1','Basel III','АМЛ','115-ФЗ','ПСД','МФО','Ликвидность','Капитал','ДКО'],
+    insurance:    ['ЦБ РФ','ОСАГО','Solvency II','Страховые резервы','Тарифное регулирование','ОМС','Лицензия'],
+    telecom:      ['152-ФЗ','Роскомнадзор','СОРМ','Суверенный интернет','Локализация данных','Персданные','ФАС'],
+    retail:       ['ФАС','Маркировка','Роспотребнадзор','Торговля','381-ФЗ','Ценообразование','КоАП','Честный знак'],
+    pharma:       ['Росздравнадзор','ЖНВЛП','GMP','Лицензия','Клинические испытания','Регистрация препаратов'],
+    construction: ['214-ФЗ','Росреестр','СНиП','Долевое строительство','Эскроу','Земельный кодекс'],
+    energy:       ['Ростехнадзор','ФСТЭК','Промышленная безопасность','Лицензия','Тарифы','Энергоэффективность'],
+    manufacturing:['Ростехнадзор','Роспотребнадзор','ТК РФ','Охрана труда','Экология','КоАП','Сертификация'],
+    other:        ['ФНС','ЦБ РФ','Роскомнадзор','ФАС','Минфин','НК РФ','ТК РФ'],
+  };
+
+  const ALL_TAGS = ['НК РФ','ФНС','НДС','Налог на прибыль','НДФЛ','УСН','ТК РФ','МРОТ','Охрана труда',
+    'КоАП','44-ФЗ','223-ФЗ','Тендер','Госзакупки','ESG','ФСБУ','Бухучёт','Аудит','Банкротство',
+    'Кибербезопасность','Антикоррупция','Валютный контроль','Инсайд','Реструктуризация'];
+
+  function selectIndustry(id, el) {
+    document.querySelectorAll('.industry-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedIndustry = id;
+    document.getElementById('nextBtn').disabled = false;
+    document.getElementById('navHint').textContent = 'Отлично! Нажмите «Далее» чтобы выбрать темы';
+  }
+
+  function renderRecommendedTags(id) {
+    const rec = INDUSTRY_TAGS[id] || [];
+    const c = document.getElementById('recommendedTags');
+    c.innerHTML = '';
+    rec.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'tag-btn recommended' + (selectedTags.has(tag) ? ' selected' : '');
+      btn.textContent = tag;
+      btn.onclick = () => toggleTag(tag, btn);
+      c.appendChild(btn);
+    });
+  }
+
+  function renderAllTags() {
+    const c = document.getElementById('allTags');
+    c.innerHTML = '';
+    ALL_TAGS.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'tag-btn' + (selectedTags.has(tag) ? ' selected' : '');
+      btn.textContent = tag;
+      btn.onclick = () => toggleTag(tag, btn);
+      c.appendChild(btn);
+    });
+  }
+
+  function toggleTag(tag, btn) {
+    if (selectedTags.has(tag)) { selectedTags.delete(tag); btn.classList.remove('selected'); }
+    else { selectedTags.add(tag); btn.classList.add('selected'); }
+    updateTagSummary();
+    if (currentStep === 2) {
+      document.getElementById('nextBtn').disabled = selectedTags.size === 0;
+      document.getElementById('navHint').textContent = selectedTags.size > 0 ? `Выбрано тем: ${selectedTags.size}` : 'Выберите хотя бы одну тему';
+    }
+  }
+
+  function updateTagSummary() {
+    const s = document.getElementById('selectedSummary');
+    if (selectedTags.size === 0) { s.style.display = 'none'; return; }
+    s.style.display = 'block';
+    document.getElementById('tagsCount').textContent = selectedTags.size;
+    document.getElementById('summaryTags').innerHTML = [...selectedTags].map(t => `<span class="summary-tag">${t}</span>`).join('');
+  }
+
+  function toggleNotif(id, el) {
+    if (selectedNotifs.has(id)) {
+      if (selectedNotifs.size === 1) return;
+      selectedNotifs.delete(id); el.classList.remove('selected');
+    } else {
+      selectedNotifs.add(id); el.classList.add('selected');
+    }
+  }
+
+  function selectFreq(id, el) {
+    selectedFreq = id;
+    document.querySelectorAll('[id^="freq-"]').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function nextStep() {
+    if (currentStep === 3) { saveAndFinish(); return; }
+    if (currentStep === 1 && selectedTags.size === 0) {
+      const rec = INDUSTRY_TAGS[selectedIndustry] || [];
+      rec.slice(0, 4).forEach(t => selectedTags.add(t));
+    }
+    currentStep++;
+    updateUI();
+  }
+
+  function prevStep() { currentStep--; updateUI(); }
+
+  function updateUI() {
+    document.querySelectorAll('.step-panel').forEach((p, i) => p.classList.toggle('active', i + 1 === currentStep));
+    for (let i = 1; i <= 3; i++) {
+      const prEl = document.getElementById(`pr${i}`);
+      const pdEl = document.getElementById(`pd${i}`);
+      if (i < currentStep) { prEl.className = 'progress-step done'; pdEl.textContent = '✓'; }
+      else if (i === currentStep) { prEl.className = 'progress-step active'; pdEl.textContent = i; }
+      else { prEl.className = 'progress-step'; pdEl.textContent = i; }
+    }
+    document.getElementById('backBtn').style.display = currentStep > 1 ? 'block' : 'none';
+    if (currentStep === 2) {
+      renderRecommendedTags(selectedIndustry);
+      renderAllTags();
+      updateTagSummary();
+      document.getElementById('nextBtn').disabled = selectedTags.size === 0;
+      document.getElementById('navHint').textContent = selectedTags.size > 0 ? `Выбрано тем: ${selectedTags.size}` : 'Выберите хотя бы одну тему';
+      document.getElementById('nextLabel').textContent = 'Далее →';
+    } else if (currentStep === 3) {
+      document.getElementById('nextBtn').disabled = false;
+      document.getElementById('navHint').textContent = 'Почти готово! Выберите канал уведомлений';
+      document.getElementById('nextLabel').textContent = 'Завершить настройку →';
+    } else {
+      document.getElementById('nextBtn').disabled = !selectedIndustry;
+      document.getElementById('navHint').textContent = 'Выберите отрасль чтобы продолжить';
+      document.getElementById('nextLabel').textContent = 'Далее →';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function saveAndFinish() {
+    const btn = document.getElementById('nextBtn');
+    btn.disabled = true;
+    document.getElementById('nextLabel').textContent = 'Сохраняем...';
+
+    try {
+      const res = await fetch(`${API}/auth/onboarding`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          industry: selectedIndustry,
+          tags: [...selectedTags],
+          notifications: [...selectedNotifs],
+          frequency: selectedFreq
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('cr_user', JSON.stringify(data.user));
+      }
+    } catch {}
+
+    // В любом случае переходим на мониторинг
+    window.location.href = 'monitoring.html';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Войти — ComplianceRadar</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--black:#0a0a0a;--white:#f5f2eb;--accent:#c8392b;--accent-light:#e8503f;--gold:#b8972a;--gray:#6b6b6b;--border:rgba(200,190,170,0.2);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--black);color:var(--white);font-family:'Libre Baskerville',Georgia,serif;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4;}
+  .left{position:relative;overflow:hidden;border-right:1px solid var(--border);}
+  .left-bg{position:absolute;inset:0;}
+  .left-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.25) saturate(0.4);}
+  .left-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,10,.6) 0%,transparent 60%),linear-gradient(to top,rgba(10,10,10,.8) 0%,transparent 50%);}
+  .left-content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:48px;}
+  .logo{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--white);display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  .left-quote{font-size:clamp(24px,2.5vw,36px);font-weight:700;line-height:1.2;margin-bottom:24px;max-width:400px;}
+  .left-quote em{font-style:italic;color:var(--gold);}
+  .left-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(245,242,235,.4);text-transform:uppercase;}
+  .right{display:flex;align-items:center;justify-content:center;padding:48px;background:#080808;}
+  .form-box{width:100%;max-width:400px;animation:fadeUp .6s ease forwards;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .form-tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+  .form-tag::before{content:'';display:inline-block;width:20px;height:1px;background:var(--gold);}
+  .form-title{font-size:36px;font-weight:700;line-height:1.1;margin-bottom:8px;}
+  .form-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray);letter-spacing:.06em;margin-bottom:40px;}
+  .field{margin-bottom:20px;}
+  .field label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:8px;}
+  .field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.06em;padding:14px 16px;outline:none;transition:border-color .2s,background .2s;-webkit-appearance:none;}
+  .field input:focus{border-color:rgba(200,190,170,.5);background:rgba(255,255,255,.06);}
+  .field input.err{border-color:var(--accent);}
+  .field-error{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--accent);margin-top:6px;display:none;}
+  .field-error.show{display:block;}
+  .btn-submit{width:100%;background:var(--accent);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:16px;border:none;cursor:pointer;transition:background .2s,transform .1s;margin-top:28px;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-submit:hover{background:var(--accent-light);transform:translateY(-1px);}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .global-error{background:rgba(200,57,43,.1);border:1px solid rgba(200,57,43,.3);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--accent);padding:12px 16px;margin-bottom:20px;display:none;}
+  .global-error.show{display:block;}
+  .divider{display:flex;align-items:center;gap:16px;margin:28px 0;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  .divider span{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--gray);text-transform:uppercase;}
+  .switch-link{text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--gray);}
+  .switch-link a{color:var(--white);text-decoration:none;border-bottom:1px solid var(--border);}
+  .switch-link a:hover{border-color:var(--white);}
+  @media(max-width:768px){body{grid-template-columns:1fr;}.left{display:none;}.right{padding:32px 24px;align-items:flex-start;padding-top:60px;}}
+</style>
+</head>
+<body>
+<div class="left">
+  <div class="left-bg"><img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&auto=format&fit=crop&q=60" alt=""></div>
+  <div class="left-content">
+    <a href="index.html" class="logo"><span class="logo-dot"></span>ComplianceRadar</a>
+    <div>
+      <p class="left-quote">Ни одного пропущенного <em>регуляторного</em> изменения</p>
+      <p class="left-meta">Автоматический мониторинг · 15+ источников · 24/7</p>
+    </div>
+  </div>
+</div>
+<div class="right">
+  <div class="form-box">
+    <div class="form-tag">Авторизация</div>
+    <h1 class="form-title">Добро пожаловать</h1>
+    <p class="form-sub">Войдите в систему мониторинга</p>
+    <div class="global-error" id="globalError"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@company.ru" autocomplete="email">
+      <div class="field-error" id="emailErr">Введите корректный email</div>
+    </div>
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      <div class="field-error" id="passErr">Введите пароль</div>
+    </div>
+    <button class="btn-submit" id="submitBtn" onclick="handleLogin()"><span id="btnText">Войти</span></button>
+    <div class="divider"><span>или</span></div>
+    <div class="switch-link">Нет аккаунта? <a href="register.html">Зарегистрироваться</a></div>
+  </div>
+</div>
+<script>
+  const API = 'https://fnsbot-production.up.railway.app';
+  (async () => {
+    const token = localStorage.getItem('cr_token');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) window.location.href = 'monitoring.html';
+      else { localStorage.removeItem('cr_token'); localStorage.removeItem('cr_user'); }
+    } catch {}
+  })();
+
+  function ve(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+  async function handleLogin() {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    let ok = true;
+    ['email','password'].forEach(id => document.getElementById(id).classList.remove('err'));
+    document.getElementById('emailErr').classList.remove('show');
+    document.getElementById('passErr').classList.remove('show');
+    document.getElementById('globalError').classList.remove('show');
+    if (!ve(email)) { document.getElementById('email').classList.add('err'); document.getElementById('emailErr').classList.add('show'); ok = false; }
+    if (!pass) { document.getElementById('password').classList.add('err'); document.getElementById('passErr').classList.add('show'); ok = false; }
+    if (!ok) return;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; document.getElementById('btnText').textContent = 'Входим...';
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const err = document.getElementById('globalError');
+        err.textContent = data.detail || 'Неверный email или пароль';
+        err.classList.add('show');
+        btn.disabled = false; document.getElementById('btnText').textContent = 'Войти';
+        return;
+      }
+      localStorage.setItem('cr_token', data.token);
+      localStorage.setItem('cr_user', JSON.stringify(data.user));
+      window.location.href = data.onboarding_done ? 'monitoring.html' : 'onboarding.html';
+    } catch {
+      document.getElementById('globalError').textContent = 'Нет соединения с сервером';
+      document.getElementById('globalError').classList.add('show');
+      btn.disabled = false; document.getElementById('btnText').textContent = 'Войти';
+    }
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+</script>
+</body>
+</html>
