@@ -868,9 +868,6 @@
   const CR_TOKEN = localStorage.getItem('cr_token');
   const CR_USER = JSON.parse(localStorage.getItem('cr_user') || 'null');
   let showPersonal = !!CR_TOKEN;
-  // Auth check
-  const crUser = JSON.parse(localStorage.getItem('cr_user') || 'null');
-  const crProfile = crUser ? JSON.parse(localStorage.getItem(`cr_profile_${crUser.email}`) || 'null') : null;
   let currentFilter = 'all';
   let currentOffset = 0;
   const PAGE_SIZE = 20;
@@ -1131,24 +1128,12 @@
 
   // ── INIT ──────────────────────────────────────────────────────
 
-  // Auth check
-  const crUser = JSON.parse(localStorage.getItem('cr_user') || 'null');
-  if (crUser) {
-    const panel = document.getElementById('userPanel');
-    panel.style.display = 'flex';
-    document.getElementById('userName').textContent = crUser.name || crUser.email;
-  }
-
-  function logout() {
-    localStorage.removeItem('cr_user');
-    window.location.href = 'login.html';
-  }
-
-  // Auth + user panel
   if (CR_USER) {
     const panel = document.getElementById('userPanel');
-    panel.style.display = 'flex';
-    document.getElementById('userName').textContent = CR_USER.name || CR_USER.email;
+    if (panel) {
+      panel.style.display = 'flex';
+      document.getElementById('userName').textContent = CR_USER.name || CR_USER.email;
+    }
   }
 
   function logout() {
