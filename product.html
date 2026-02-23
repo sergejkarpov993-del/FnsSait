@@ -224,41 +224,45 @@
   /* FEATURE BLOCKS */
   .feature-block {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 42% 58%;
     gap: 1px;
     background: var(--border);
     border: 1px solid var(--border);
     margin-bottom: 1px;
   }
 
-  .feature-block.reverse { direction: rtl; }
-  .feature-block.reverse > * { direction: ltr; }
+  .feature-block.reverse {
+    grid-template-columns: 58% 42%;
+  }
+
+  .feature-block.reverse .feature-photo { order: 2; }
+  .feature-block.reverse .feature-content { order: 1; }
 
   .feature-photo {
     position: relative;
     overflow: hidden;
-    min-height: 440px;
+    min-height: 320px;
   }
 
   .feature-photo img {
     width: 100%; height: 100%;
     object-fit: cover;
-    filter: brightness(0.35) saturate(0.4) hue-rotate(200deg);
+    filter: brightness(0.55) saturate(0.5) hue-rotate(200deg);
     transition: filter 0.6s ease;
   }
 
   .feature-block:hover .feature-photo img {
-    filter: brightness(0.5) saturate(0.6) hue-rotate(200deg);
+    filter: brightness(0.7) saturate(0.7) hue-rotate(200deg);
   }
 
   .feature-photo-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to right, transparent 50%, var(--black) 100%);
+    background: linear-gradient(to right, transparent 20%, rgba(10,10,10,0.6) 100%);
   }
 
   .feature-block.reverse .feature-photo-overlay {
-    background: linear-gradient(to left, transparent 50%, var(--black) 100%);
+    background: linear-gradient(to left, transparent 20%, rgba(10,10,10,0.6) 100%);
   }
 
   .feature-photo-label {
@@ -276,7 +280,7 @@
 
   .feature-content {
     background: #0a0a0a;
-    padding: 64px 56px;
+    padding: 44px 52px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -284,22 +288,31 @@
 
   .feature-num {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 64px;
+    font-size: 48px;
     font-weight: 300;
     color: rgba(245,242,235,0.04);
     line-height: 1;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
   .feature-icon-wrap {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    margin-bottom: 28px;
+    margin-bottom: 22px;
+  }
+
+  .feature-icon-wrap svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--gold);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .feature-title {
@@ -661,328 +674,20 @@
     100% { transform: translateX(-50%); }
   }
 
-  /* ── ROADMAP ── */
-  .roadmap {
-    background: #080808;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .roadmap-timeline {
-    position: relative;
-    margin-top: 64px;
-  }
-
-  /* Горизонтальная линия */
-  .roadmap-track {
-    position: relative;
-    height: 2px;
-    background: var(--border);
-    margin: 0 0 0 0;
-    margin-bottom: 48px;
-  }
-
-  .roadmap-track-fill {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
-    background: linear-gradient(to right, var(--accent), var(--gold));
-    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 0%;
-  }
-
-  /* Месяцы-маркеры над линией */
-  .roadmap-months {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    position: relative;
-  }
-
-  .roadmap-month {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--gray);
-    position: relative;
-    cursor: pointer;
-    transition: color 0.2s;
-    padding-bottom: 8px;
-    flex: 1;
-    text-align: center;
-  }
-
-  .roadmap-month:first-child { text-align: left; }
-  .roadmap-month:last-child { text-align: right; }
-
-  .roadmap-month.active { color: var(--gold); }
-
-  .roadmap-month::after {
-    content: '';
-    position: absolute;
-    bottom: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--border);
-    border: 2px solid #080808;
-    transition: background 0.3s, transform 0.3s;
-  }
-
-  .roadmap-month:first-child::after { left: 4px; transform: none; }
-  .roadmap-month:last-child::after { left: auto; right: 4px; transform: none; }
-
-  .roadmap-month.active::after {
-    background: var(--gold);
-    transform: translateX(-50%) scale(1.3);
-  }
-
-  .roadmap-month:first-child.active::after { transform: scale(1.3); left: 4px; }
-  .roadmap-month:last-child.active::after { transform: scale(1.3); right: 4px; left: auto; }
-
-  /* Карточки модулей */
-  .roadmap-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-top: 40px;
-    transition: opacity 0.3s;
-  }
-
-  .roadmap-card {
-    background: #080808;
-    padding: 36px 32px;
-    display: none;
-    flex-direction: column;
-    gap: 16px;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-  }
-
-  .roadmap-card.visible-card {
-    display: flex;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .roadmap-card-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--gray);
-    text-transform: uppercase;
-  }
-
-  .roadmap-card-icon {
-    font-size: 28px;
-  }
-
-  .roadmap-card-title {
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .roadmap-card-desc {
-    font-size: 14px;
-    line-height: 1.65;
-    color: rgba(245,242,235,0.55);
-    flex: 1;
-  }
-
-  .roadmap-card-tag {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border: 1px solid rgba(184,151,42,0.3);
-    color: var(--gold);
-    align-self: flex-start;
-  }
-
-  .roadmap-card.done .roadmap-card-tag {
-    border-color: rgba(92,184,92,0.3);
-    color: #5cb85c;
-  }
-
-  .roadmap-card.active-card .roadmap-card-title {
-    color: var(--gold);
-  }
-
-  .roadmap-card.active-card {
-    background: #0f0e0a;
-    border-left: 2px solid var(--gold);
-  }
-
-  .roadmap-progress-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
-  .roadmap-progress-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--gray);
-    text-transform: uppercase;
-  }
-
-  .roadmap-progress-pct {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--gold);
-    font-weight: 500;
-  }
-
-  .roadmap-switcher {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 40px;
-  }
-
-  .roadmap-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--gray);
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .roadmap-btn:hover { border-color: var(--white); color: var(--white); }
-  .roadmap-btn.active { background: var(--gold); border-color: var(--gold); color: var(--black); }
-
-  @media (max-width: 900px) {
-    .roadmap-cards { grid-template-columns: 1fr 1fr; }
-  }
-
-  @media (max-width: 600px) {
-    .roadmap-cards { grid-template-columns: 1fr; }
-    .roadmap-month { font-size: 9px; letter-spacing: 0.08em; }
-    .roadmap-card { padding: 24px 20px; }
-    .roadmap-switcher { flex-wrap: wrap; }
-  }
-
-  /* ── BURGER MENU ── */
-  .burger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
-    padding: 4px;
-    background: none;
-    border: none;
-    z-index: 200;
-  }
-  .burger span {
-    display: block;
-    width: 24px;
-    height: 2px;
-    background: var(--white);
-    transition: all 0.3s ease;
-    transform-origin: center;
-  }
-  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-  .mobile-menu {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(10,10,10,0.98);
-    z-index: 150;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(20px);
-  }
-  .mobile-menu.open { display: flex; }
-  .mobile-menu a {
-    font-family: 'Libre Baskerville', serif;
-    font-size: clamp(28px, 7vw, 40px);
-    font-weight: 700;
-    color: var(--white);
-    text-decoration: none;
-    padding: 20px 40px;
-    width: 100%;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    transition: color 0.2s;
-  }
-  .mobile-menu a:first-child { border-top: 1px solid var(--border); }
-  .mobile-menu a:hover { color: var(--gold); }
-  .mobile-menu-cta {
-    margin-top: 40px;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 13px !important;
-    font-weight: 400 !important;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    background: var(--accent) !important;
-    color: var(--white) !important;
-    border-bottom: none !important;
-    padding: 18px 48px !important;
-    width: auto !important;
-  }
-
-  /* ── TABLET ── */
   @media (max-width: 900px) {
     nav { padding: 20px 24px; }
     .nav-links { display: none; }
-    .nav-cta { display: none; }
-    .burger { display: flex; }
     .page-hero { padding: 140px 24px 80px; }
     section { padding: 60px 24px; }
     .feature-block { grid-template-columns: 1fr; }
     .feature-block.reverse { direction: ltr; }
     .feature-photo { min-height: 260px; }
     .integrations-grid { grid-template-columns: 1fr 1fr; }
-    .security-grid { grid-template-columns: 1fr 1fr; }
+    .security-grid { grid-template-columns: 1fr; }
     .sla-grid { grid-template-columns: 1fr 1fr; }
     .api-section { grid-template-columns: 1fr; padding: 60px 24px; }
     footer { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
     .footer-links { flex-direction: column; gap: 16px; }
-  }
-
-  /* ── MOBILE ── */
-  @media (max-width: 600px) {
-    nav { padding: 18px 20px; }
-    .page-hero { padding: 110px 20px 60px; }
-    .page-title { font-size: clamp(32px, 9vw, 48px); }
-    .page-subtitle { font-size: 15px; }
-    section { padding: 56px 20px; }
-    .section-title { font-size: clamp(24px, 7vw, 36px); }
-    .section-sub { font-size: 15px; margin-bottom: 36px; }
-    .feature-content { padding: 40px 20px; }
-    .feature-title { font-size: clamp(22px, 6vw, 32px); }
-    .feature-desc { font-size: 14px; }
-    .feature-points li { font-size: 13px; }
-    .integrations-grid { grid-template-columns: 1fr; }
-    .integration-card { padding: 20px; }
-    .security-grid { grid-template-columns: 1fr; }
-    .sla-grid { grid-template-columns: 1fr 1fr; }
-    .sla-num { font-size: 40px; }
-    .code-block { font-size: 12px; padding: 24px 20px; overflow-x: auto; }
-    .cta-title { font-size: clamp(26px, 8vw, 40px); }
-    .cta-actions { flex-direction: column; gap: 12px; align-items: center; }
-    .cta-actions a { width: 100%; max-width: 320px; text-align: center; }
-    footer { flex-direction: column; gap: 20px; padding: 28px 20px; }
-    .footer-links { flex-wrap: wrap; justify-content: flex-start; gap: 12px; }
   }
 </style>
 </head>
@@ -1001,19 +706,7 @@
     <li><a href="contacts.html">Контакты</a></li>
   </ul>
   <a href="contacts.html" class="nav-cta">Запросить демо</a>
-  <button class="burger" id="burger" aria-label="Меню">
-    <span></span><span></span><span></span>
-  </button>
 </nav>
-
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-  <a href="product.html">Продукт</a>
-  <a href="industries.html">Отрасли</a>
-  <a href="index.html#pricing">Тарифы</a>
-  <a href="contacts.html">Контакты</a>
-  <a href="contacts.html" class="mobile-menu-cta">Запросить демо</a>
-</div>
 
 <!-- PAGE HERO -->
 <div class="page-hero">
@@ -1059,7 +752,7 @@
     </div>
     <div class="feature-content reveal">
       <div class="feature-num">01</div>
-      <div class="feature-icon-wrap">📡</div>
+      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M8 12a4 4 0 0 1 8 0"/><path d="M4.5 12a7.5 7.5 0 0 1 15 0"/></svg></div>
       <h2 class="feature-title">Автоматический сбор и парсинг</h2>
       <p class="feature-desc">Система ежечасно обходит 15+ официальных сайтов российских регуляторов, парсит новые документы, сравнивает их с предыдущими версиями и определяет, какие изменения требуют внимания вашей команды.</p>
       <ul class="feature-points">
@@ -1080,7 +773,7 @@
     </div>
     <div class="feature-content reveal">
       <div class="feature-num">02</div>
-      <div class="feature-icon-wrap">🧠</div>
+      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="6" cy="8" r="1.5"/><circle cx="18" cy="8" r="1.5"/><circle cx="12" cy="16" r="1.5"/><path d="M7.5 8h9M6 9.5l4.5 5M18 9.5l-4.5 5"/></svg></div>
       <h2 class="feature-title">Умная приоритизация на базе LLM</h2>
       <p class="feature-desc">Языковая модель анализирует каждый новый документ, извлекает ключевые требования, определяет, каких ролей и подразделений они касаются, и формирует краткое резюме для руководителя на русском языке.</p>
       <ul class="feature-points">
@@ -1101,7 +794,7 @@
     </div>
     <div class="feature-content reveal">
       <div class="feature-num">03</div>
-      <div class="feature-icon-wrap">🔔</div>
+      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg></div>
       <h2 class="feature-title">Персонализированные алерты</h2>
       <p class="feature-desc">Каждый сотрудник получает только те уведомления, которые относятся к его зоне ответственности. CFO видит налоговые изменения, compliance-офицер — всё. Никакого информационного шума.</p>
       <ul class="feature-points">
@@ -1122,7 +815,7 @@
     </div>
     <div class="feature-content reveal">
       <div class="feature-num">04</div>
-      <div class="feature-icon-wrap">🗂️</div>
+      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9z"/><path d="M10 14h4"/></svg></div>
       <h2 class="feature-title">Полнотекстовый архив и аналитика</h2>
       <p class="feature-desc">Весь архив нормативных изменений доступен для поиска, фильтрации и экспорта. Стройте регуляторную историю вашей отрасли, готовьте отчёты для совета директоров и проверяющих органов.</p>
       <ul class="feature-points">
@@ -1144,7 +837,7 @@
 
   <div class="integrations-grid">
     <div class="integration-card reveal">
-      <div class="integration-icon">💬</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
       <div>
         <div class="integration-name">Telegram</div>
         <p class="integration-desc">Бот отправляет алерты прямо в корпоративный канал или лично каждому сотруднику.</p>
@@ -1152,7 +845,7 @@
       <div class="integration-status">Доступно</div>
     </div>
     <div class="integration-card reveal">
-      <div class="integration-icon">🔷</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg></div>
       <div>
         <div class="integration-name">Microsoft Teams</div>
         <p class="integration-desc">Карточки с изменениями появляются в нужных командах без лишних кликов.</p>
@@ -1160,7 +853,7 @@
       <div class="integration-status">Доступно</div>
     </div>
     <div class="integration-card reveal">
-      <div class="integration-icon">⚡</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M13 2L4.5 13H12l-1 9 8.5-11H12z"/></svg></div>
       <div>
         <div class="integration-name">Slack</div>
         <p class="integration-desc">Webhooks в выбранные каналы, поддержка тредов и реакций для подтверждения ознакомления.</p>
@@ -1168,7 +861,7 @@
       <div class="integration-status">Доступно</div>
     </div>
     <div class="integration-card reveal">
-      <div class="integration-icon">🔌</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 12v7a2 2 0 0 0 4 0V5l-4 7z"/><path d="M8 5v7l-4 0"/><path d="M8 12v7a2 2 0 0 0 4 0"/></svg></div>
       <div>
         <div class="integration-name">REST API</div>
         <p class="integration-desc">Полноценный API для встраивания данных в собственные GRC, ERP и BI-системы.</p>
@@ -1176,7 +869,7 @@
       <div class="integration-status">Enterprise</div>
     </div>
     <div class="integration-card reveal">
-      <div class="integration-icon">📊</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="6" width="4" height="15"/><rect x="17" y="3" width="4" height="18"/></svg></div>
       <div>
         <div class="integration-name">Power BI / Tableau</div>
         <p class="integration-desc">Готовые коннекторы для построения дашбордов регуляторной активности.</p>
@@ -1184,7 +877,7 @@
       <div class="integration-status">Enterprise</div>
     </div>
     <div class="integration-card reveal">
-      <div class="integration-icon">🔐</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1" fill="var(--gold)"/></svg></div>
       <div>
         <div class="integration-name">SSO / LDAP</div>
         <p class="integration-desc">Единый вход через корпоративный провайдер — Okta, Azure AD, Keycloak и другие.</p>
@@ -1192,7 +885,7 @@
       <div class="integration-status">Enterprise</div>
     </div>
     <div class="integration-card reveal">
-      <div class="integration-icon">📧</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
       <div>
         <div class="integration-name">Email / SMTP</div>
         <p class="integration-desc">Отправка через ваш корпоративный почтовый сервер для соответствия политикам ИБ.</p>
@@ -1200,7 +893,7 @@
       <div class="integration-status">Доступно</div>
     </div>
     <div class="integration-card reveal">
-      <div class="integration-icon">🗃️</div>
+      <div class="integration-icon"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="4" width="20" height="5" rx="1"/><rect x="2" y="12" width="20" height="5" rx="1"/><path d="M6 6.5h.01M6 14.5h.01"/></svg></div>
       <div>
         <div class="integration-name">Confluence / Notion</div>
         <p class="integration-desc">Автоматический экспорт дайджестов в базу знаний вашей команды.</p>
@@ -1245,32 +938,32 @@
 
   <div class="security-grid">
     <div class="security-item reveal">
-      <div class="security-icon">🏛️</div>
+      <div class="security-icon"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/></svg></div>
       <div class="security-title">Хранение данных в РФ</div>
       <p class="security-desc">Вся пользовательская информация хранится на серверах в российских дата-центрах уровня Tier III. Соответствие 242-ФЗ.</p>
     </div>
     <div class="security-item reveal">
-      <div class="security-icon">🔒</div>
+      <div class="security-icon"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
       <div class="security-title">Шифрование TLS 1.3 + AES-256</div>
       <p class="security-desc">Данные шифруются при передаче и хранении. Ключи управляются через HSM, доступ журналируется.</p>
     </div>
     <div class="security-item reveal">
-      <div class="security-icon">📋</div>
+      <div class="security-icon"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg></div>
       <div class="security-title">ГОСТ Р 57580</div>
       <p class="security-desc">Система спроектирована с учётом требований ГОСТ к защите информации в финансовых организациях.</p>
     </div>
     <div class="security-item reveal">
-      <div class="security-icon">👤</div>
+      <div class="security-icon"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
       <div class="security-title">Ролевая модель доступа</div>
       <p class="security-desc">Гибкая настройка прав: администратор, compliance-офицер, аналитик, просматривающий — для каждой роли свой набор данных.</p>
     </div>
     <div class="security-item reveal">
-      <div class="security-icon">📝</div>
+      <div class="security-icon"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 20h-7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5"/><path d="M16 19l2 2 4-4"/></svg></div>
       <div class="security-title">Журнал аудита</div>
       <p class="security-desc">Каждое действие пользователя фиксируется и доступно для выгрузки — на случай проверки или внутреннего расследования.</p>
     </div>
     <div class="security-item reveal">
-      <div class="security-icon">🛡️</div>
+      <div class="security-icon"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3l8 4v5c0 5-4 9-8 10C8 21 4 17 4 12V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
       <div class="security-title">Пентест и Bug Bounty</div>
       <p class="security-desc">Ежегодное независимое тестирование на проникновение. Программа вознаграждения за обнаруженные уязвимости.</p>
     </div>
@@ -1298,99 +991,6 @@
     <div class="sla-item">
       <div class="sla-num">4ч</div>
       <div class="sla-label">Время ответа<br>на инцидент</div>
-    </div>
-  </div>
-</section>
-
-<!-- ROADMAP -->
-<section class="roadmap" id="roadmap">
-  <div class="section-tag">Разработка</div>
-  <h2 class="section-title reveal">MVP за 3 месяца</h2>
-  <p class="section-sub reveal">Минимальный продукт для крупного бизнеса — надёжная промышленная система с SLA, биллингом и ролевой моделью. Выберите месяц, чтобы увидеть активные модули.</p>
-
-  <div class="roadmap-timeline reveal">
-    <!-- Месяцы -->
-    <div class="roadmap-months">
-      <div class="roadmap-month active" onclick="setMonth(1, this)">Месяц 1</div>
-      <div class="roadmap-month" onclick="setMonth(2, this)">Месяц 2</div>
-      <div class="roadmap-month" onclick="setMonth(3, this)">Месяц 3</div>
-    </div>
-
-    <!-- Трек -->
-    <div class="roadmap-track">
-      <div class="roadmap-track-fill" id="trackFill"></div>
-    </div>
-
-    <!-- Прогресс -->
-    <div class="roadmap-progress-label">
-      <span class="roadmap-progress-text">Готовность MVP</span>
-      <span class="roadmap-progress-pct" id="progressPct">33%</span>
-    </div>
-
-    <!-- Переключатели -->
-    <div class="roadmap-switcher">
-      <button class="roadmap-btn active" onclick="setMonth(1, null, this)">Месяц 1</button>
-      <button class="roadmap-btn" onclick="setMonth(2, null, this)">Месяц 2</button>
-      <button class="roadmap-btn" onclick="setMonth(3, null, this)">Месяц 3</button>
-    </div>
-
-    <!-- Карточки -->
-    <div class="roadmap-cards" id="roadmapCards">
-
-      <!-- Модуль 1: Парсеры -->
-      <div class="roadmap-card" data-months="1,2,3" data-start="1">
-        <div class="roadmap-card-num">Модуль 01</div>
-        <div class="roadmap-card-icon">🔍</div>
-        <div class="roadmap-card-title">Парсеры источников</div>
-        <div class="roadmap-card-desc">pravo.gov.ru, ФНС, ЦБ, РКН — автоматический обход по расписанию каждые 2 часа. Дедупликация, обработка ошибок, алерт при сбое.</div>
-        <div class="roadmap-card-tag">Месяц 1</div>
-      </div>
-
-      <!-- Модуль 2: NLP -->
-      <div class="roadmap-card" data-months="1,2,3" data-start="1">
-        <div class="roadmap-card-num">Модуль 02</div>
-        <div class="roadmap-card-icon">🧠</div>
-        <div class="roadmap-card-title">NLP-классификатор</div>
-        <div class="roadmap-card-desc">Отрасль, тип документа, срочность, дата вступления в силу — через Claude API. Резюме на русском языке для каждого акта.</div>
-        <div class="roadmap-card-tag">Месяц 1–2</div>
-      </div>
-
-      <!-- Модуль 3: Алерты -->
-      <div class="roadmap-card" data-months="2,3" data-start="2">
-        <div class="roadmap-card-num">Модуль 03</div>
-        <div class="roadmap-card-icon">📧</div>
-        <div class="roadmap-card-title">Email + вебхук алерты</div>
-        <div class="roadmap-card-desc">Шаблонные HTML-письма с резюме документа и ссылкой на первоисточник. POST на URL клиента для интеграции с корпоративными системами.</div>
-        <div class="roadmap-card-tag">Месяц 2</div>
-      </div>
-
-      <!-- Модуль 4: Кабинет -->
-      <div class="roadmap-card" data-months="2,3" data-start="2">
-        <div class="roadmap-card-num">Модуль 04</div>
-        <div class="roadmap-card-icon">👤</div>
-        <div class="roadmap-card-title">Личный кабинет</div>
-        <div class="roadmap-card-desc">Мультипользовательский доступ с ролевой моделью. Фильтры, история изменений, управление командой и настройка уведомлений.</div>
-        <div class="roadmap-card-tag">Месяц 2–3</div>
-      </div>
-
-      <!-- Модуль 5: Биллинг -->
-      <div class="roadmap-card" data-months="3" data-start="3">
-        <div class="roadmap-card-num">Модуль 05</div>
-        <div class="roadmap-card-icon">🧾</div>
-        <div class="roadmap-card-title">Корпоративный биллинг</div>
-        <div class="roadmap-card-desc">Выставление счётов, оплата по договору, закрывающие акты. Без кредитных карт — только B2B-схема для юрлиц.</div>
-        <div class="roadmap-card-tag">Месяц 3</div>
-      </div>
-
-      <!-- Модуль 6: SLA -->
-      <div class="roadmap-card" data-months="3" data-start="3">
-        <div class="roadmap-card-num">Модуль 06</div>
-        <div class="roadmap-card-icon">📡</div>
-        <div class="roadmap-card-title">SLA-мониторинг</div>
-        <div class="roadmap-card-desc">Uptime 99.5%, автоматический алерт при сбое парсера. Панель доступности в реальном времени. Журнал инцидентов.</div>
-        <div class="roadmap-card-tag">Месяц 3</div>
-      </div>
-
     </div>
   </div>
 </section>
@@ -1429,73 +1029,6 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  // Roadmap logic
-  let currentMonth = 1;
-
-  const progress = { 1: 33, 2: 66, 3: 100 };
-  const trackFill = document.getElementById('trackFill');
-  const progressPct = document.getElementById('progressPct');
-
-  function setMonth(month, dotEl, btnEl) {
-    currentMonth = month;
-
-    // Обновить точки-маркеры
-    document.querySelectorAll('.roadmap-month').forEach((el, i) => {
-      el.classList.toggle('active', i + 1 === month);
-    });
-
-    // Обновить кнопки
-    document.querySelectorAll('.roadmap-btn').forEach((el, i) => {
-      el.classList.toggle('active', i + 1 === month);
-    });
-
-    // Прогресс-бар
-    trackFill.style.width = progress[month] + '%';
-    progressPct.textContent = progress[month] + '%';
-
-    // Карточки
-    const cards = document.querySelectorAll('.roadmap-card');
-    cards.forEach(card => {
-      const months = card.dataset.months.split(',').map(Number);
-      const start = parseInt(card.dataset.start);
-      const isVisible = months.includes(month);
-      const isActive = start === month;
-
-      card.classList.remove('visible-card', 'active-card', 'done');
-
-      if (isVisible) {
-        card.classList.add('visible-card');
-        if (isActive) card.classList.add('active-card');
-        if (start < month) card.classList.add('done');
-      }
-    });
-  }
-
-  // Запуск при появлении секции в viewport
-  const roadmapSection = document.getElementById('roadmap');
-  const roadmapObserver = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) {
-      setTimeout(() => setMonth(1), 300);
-      roadmapObserver.disconnect();
-    }
-  }, { threshold: 0.3 });
-  if (roadmapSection) roadmapObserver.observe(roadmapSection);
-
-  const burger = document.getElementById('burger');
-  const mobileMenu = document.getElementById('mobileMenu');
-  burger.addEventListener('click', () => {
-    burger.classList.toggle('open');
-    mobileMenu.classList.toggle('open');
-    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
-  });
-  mobileMenu.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      burger.classList.remove('open');
-      mobileMenu.classList.remove('open');
-      document.body.style.overflow = '';
-    });
-  });
 </script>
 </body>
 </html>
