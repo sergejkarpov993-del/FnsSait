@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Продукт — ComplianceRadar</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2eb;
+    --cream: #ede9de;
+    --accent: #c8392b;
+    --accent-light: #e8503f;
+    --gold: #b8972a;
+    --mid: #2a2a2a;
+    --gray: #6b6b6b;
+    --border: rgba(200,190,170,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    background: rgba(10,10,10,0.75);
+  }
+
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+
+  .nav-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .nav-cta:hover { background: var(--accent); color: var(--white); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* PAGE HERO */
+  .page-hero {
+    padding: 180px 48px 100px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .page-hero-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.12) saturate(0.3);
+  }
+
+  .page-hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, var(--black) 100%),
+                linear-gradient(to right, var(--black) 0%, transparent 60%);
+  }
+
+  .page-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+  }
+
+  .page-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s ease forwards;
+  }
+
+  .page-title {
+    font-size: clamp(38px, 5vw, 68px);
+    line-height: 1.05;
+    font-weight: 700;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s ease forwards;
+  }
+
+  .page-title em { font-style: italic; color: var(--gold); }
+
+  .page-subtitle {
+    font-size: 18px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.6);
+    max-width: 540px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s ease forwards;
+  }
+
+  /* SECTIONS */
+  section { padding: 100px 48px; }
+
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-size: clamp(28px, 3vw, 48px);
+    line-height: 1.1;
+    font-weight: 700;
+    max-width: 700px;
+    margin-bottom: 24px;
+  }
+
+  .section-sub {
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.6);
+    max-width: 560px;
+    margin-bottom: 64px;
+  }
+
+  /* FEATURE BLOCKS */
+  .feature-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 1px;
+  }
+
+  .feature-block.reverse { direction: rtl; }
+  .feature-block.reverse > * { direction: ltr; }
+
+  .feature-photo {
+    position: relative;
+    overflow: hidden;
+    min-height: 440px;
+  }
+
+  .feature-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.35) saturate(0.4) hue-rotate(200deg);
+    transition: filter 0.6s ease;
+  }
+
+  .feature-block:hover .feature-photo img {
+    filter: brightness(0.5) saturate(0.6) hue-rotate(200deg);
+  }
+
+  .feature-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 50%, var(--black) 100%);
+  }
+
+  .feature-block.reverse .feature-photo-overlay {
+    background: linear-gradient(to left, transparent 50%, var(--black) 100%);
+  }
+
+  .feature-photo-label {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,242,235,0.5);
+    border-left: 2px solid var(--gold);
+    padding-left: 12px;
+  }
+
+  .feature-content {
+    background: #0a0a0a;
+    padding: 64px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .feature-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 64px;
+    font-weight: 300;
+    color: rgba(245,242,235,0.04);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .feature-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 28px;
+  }
+
+  .feature-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .feature-desc {
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(245,242,235,0.6);
+    margin-bottom: 32px;
+  }
+
+  .feature-points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feature-points li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: rgba(245,242,235,0.5);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .feature-points li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+  }
+
+  /* INTEGRATIONS */
+  .integrations { background: #0f0f0f; }
+
+  .integrations-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .integration-card {
+    background: #0f0f0f;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    transition: background 0.2s;
+  }
+
+  .integration-card:hover { background: #151515; }
+
+  .integration-icon {
+    font-size: 28px;
+  }
+
+  .integration-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .integration-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(245,242,235,0.5);
+  }
+
+  .integration-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(184,151,42,0.3);
+    padding: 4px 10px;
+    margin-top: auto;
+  }
+
+  /* SECURITY */
+  .security { background: #080808; }
+
+  .security-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .security-item {
+    background: #080808;
+    padding: 40px;
+    border-top: 3px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .security-item:hover {
+    border-color: var(--accent);
+    background: #0e0e0e;
+  }
+
+  .security-icon {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .security-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .security-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.5);
+  }
+
+  /* API SECTION */
+  .api-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    background: var(--mid);
+    padding: 100px 48px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-block {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    padding: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: rgba(245,242,235,0.7);
+    overflow-x: auto;
+  }
+
+  .code-comment { color: var(--gray); }
+  .code-key { color: var(--gold); }
+  .code-val { color: var(--accent-light); }
+  .code-str { color: #7ec8a4; }
+
+  /* SLA */
+  .sla-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .sla-item {
+    background: var(--black);
+    padding: 48px 36px;
+    text-align: center;
+  }
+
+  .sla-num {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .sla-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+  /* CTA */
+  .cta-section {
+    position: relative;
+    padding: 140px 48px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .cta-bg-photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .cta-bg-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.1) saturate(0.3);
+  }
+
+  .cta-bg-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 0%, var(--black) 75%);
+  }
+
+  .cta-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-title {
+    font-size: clamp(32px, 4vw, 58px);
+    line-height: 1.1;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .cta-sub {
+    font-size: 17px;
+    color: rgba(245,242,235,0.6);
+    margin-bottom: 48px;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--white);
+    padding: 16px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+  .btn-secondary {
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 16px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    display: inline-block;
+  }
+
+  .btn-secondary:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .footer-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 32px;
+  }
+
+  .footer-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--white); }
+
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: rgba(107,107,107,0.5);
+    text-transform: uppercase;
+  }
+
+  /* TICKER */
+  .ticker {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--mid);
+    overflow: hidden;
+    padding: 14px 0;
+  }
+
+  .ticker-inner {
+    display: flex;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    padding: 0 48px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ticker-item span { color: var(--accent); }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── ROADMAP ── */
+  .roadmap {
+    background: #080808;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .roadmap-timeline {
+    position: relative;
+    margin-top: 64px;
+  }
+
+  /* Горизонтальная линия */
+  .roadmap-track {
+    position: relative;
+    height: 2px;
+    background: var(--border);
+    margin: 0 0 0 0;
+    margin-bottom: 48px;
+  }
+
+  .roadmap-track-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    background: linear-gradient(to right, var(--accent), var(--gold));
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* Месяцы-маркеры над линией */
+  .roadmap-months {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .roadmap-month {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    position: relative;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding-bottom: 8px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .roadmap-month:first-child { text-align: left; }
+  .roadmap-month:last-child { text-align: right; }
+
+  .roadmap-month.active { color: var(--gold); }
+
+  .roadmap-month::after {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid #080808;
+    transition: background 0.3s, transform 0.3s;
+  }
+
+  .roadmap-month:first-child::after { left: 4px; transform: none; }
+  .roadmap-month:last-child::after { left: auto; right: 4px; transform: none; }
+
+  .roadmap-month.active::after {
+    background: var(--gold);
+    transform: translateX(-50%) scale(1.3);
+  }
+
+  .roadmap-month:first-child.active::after { transform: scale(1.3); left: 4px; }
+  .roadmap-month:last-child.active::after { transform: scale(1.3); right: 4px; left: auto; }
+
+  /* Карточки модулей */
+  .roadmap-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 40px;
+    transition: opacity 0.3s;
+  }
+
+  .roadmap-card {
+    background: #080808;
+    padding: 36px 32px;
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .roadmap-card.visible-card {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .roadmap-card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .roadmap-card-icon {
+    font-size: 28px;
+  }
+
+  .roadmap-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .roadmap-card-desc {
+    font-size: 14px;
+    line-height: 1.65;
+    color: rgba(245,242,235,0.55);
+    flex: 1;
+  }
+
+  .roadmap-card-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid rgba(184,151,42,0.3);
+    color: var(--gold);
+    align-self: flex-start;
+  }
+
+  .roadmap-card.done .roadmap-card-tag {
+    border-color: rgba(92,184,92,0.3);
+    color: #5cb85c;
+  }
+
+  .roadmap-card.active-card .roadmap-card-title {
+    color: var(--gold);
+  }
+
+  .roadmap-card.active-card {
+    background: #0f0e0a;
+    border-left: 2px solid var(--gold);
+  }
+
+  .roadmap-progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .roadmap-progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .roadmap-progress-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .roadmap-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 40px;
+  }
+
+  .roadmap-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--gray);
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .roadmap-btn:hover { border-color: var(--white); color: var(--white); }
+  .roadmap-btn.active { background: var(--gold); border-color: var(--gold); color: var(--black); }
+
+  @media (max-width: 900px) {
+    .roadmap-cards { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .roadmap-cards { grid-template-columns: 1fr; }
+    .roadmap-month { font-size: 9px; letter-spacing: 0.08em; }
+    .roadmap-card { padding: 24px 20px; }
+    .roadmap-switcher { flex-wrap: wrap; }
+  }
+
+  /* ── BURGER MENU ── */
+  .burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+    z-index: 200;
+  }
+  .burger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--white);
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,10,10,0.98);
+    z-index: 150;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(20px);
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+    padding: 20px 40px;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+  .mobile-menu a:first-child { border-top: 1px solid var(--border); }
+  .mobile-menu a:hover { color: var(--gold); }
+  .mobile-menu-cta {
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--accent) !important;
+    color: var(--white) !important;
+    border-bottom: none !important;
+    padding: 18px 48px !important;
+    width: auto !important;
+  }
+
+  /* ── TABLET ── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .nav-cta { display: none; }
+    .burger { display: flex; }
+    .page-hero { padding: 140px 24px 80px; }
+    section { padding: 60px 24px; }
+    .feature-block { grid-template-columns: 1fr; }
+    .feature-block.reverse { direction: ltr; }
+    .feature-photo { min-height: 260px; }
+    .integrations-grid { grid-template-columns: 1fr 1fr; }
+    .security-grid { grid-template-columns: 1fr 1fr; }
+    .sla-grid { grid-template-columns: 1fr 1fr; }
+    .api-section { grid-template-columns: 1fr; padding: 60px 24px; }
+    footer { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+    .footer-links { flex-direction: column; gap: 16px; }
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    nav { padding: 18px 20px; }
+    .page-hero { padding: 110px 20px 60px; }
+    .page-title { font-size: clamp(32px, 9vw, 48px); }
+    .page-subtitle { font-size: 15px; }
+    section { padding: 56px 20px; }
+    .section-title { font-size: clamp(24px, 7vw, 36px); }
+    .section-sub { font-size: 15px; margin-bottom: 36px; }
+    .feature-content { padding: 40px 20px; }
+    .feature-title { font-size: clamp(22px, 6vw, 32px); }
+    .feature-desc { font-size: 14px; }
+    .feature-points li { font-size: 13px; }
+    .integrations-grid { grid-template-columns: 1fr; }
+    .integration-card { padding: 20px; }
+    .security-grid { grid-template-columns: 1fr; }
+    .sla-grid { grid-template-columns: 1fr 1fr; }
+    .sla-num { font-size: 40px; }
+    .code-block { font-size: 12px; padding: 24px 20px; overflow-x: auto; }
+    .cta-title { font-size: clamp(26px, 8vw, 40px); }
+    .cta-actions { flex-direction: column; gap: 12px; align-items: center; }
+    .cta-actions a { width: 100%; max-width: 320px; text-align: center; }
+    footer { flex-direction: column; gap: 20px; padding: 28px 20px; }
+    .footer-links { flex-wrap: wrap; justify-content: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar
+  </a>
+  <ul class="nav-links">
+    <li><a href="product.html" class="active">Продукт</a></li>
+    <li><a href="industries.html">Отрасли</a></li>
+    <li><a href="index.html#pricing">Тарифы</a></li>
+    <li><a href="contacts.html">Контакты</a></li>
+  </ul>
+  <a href="contacts.html" class="nav-cta">Запросить демо</a>
+  <button class="burger" id="burger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="product.html">Продукт</a>
+  <a href="industries.html">Отрасли</a>
+  <a href="index.html#pricing">Тарифы</a>
+  <a href="contacts.html">Контакты</a>
+  <a href="contacts.html" class="mobile-menu-cta">Запросить демо</a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-bg">
+    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&auto=format&fit=crop&q=60" alt="Technology">
+  </div>
+  <div class="page-hero-content">
+    <div class="page-tag">Продукт</div>
+    <h1 class="page-title">Платформа,<br>которая <em>не спит</em></h1>
+    <p class="page-subtitle">Полный обзор архитектуры, возможностей и интеграций ComplianceRadar — инструмента, который мониторит российские регуляторы круглосуточно.</p>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <div class="ticker-item"><span>●</span> Мониторинг 24/7</div>
+    <div class="ticker-item"><span>●</span> Задержка уведомления — до 2 часов</div>
+    <div class="ticker-item"><span>●</span> 15+ источников</div>
+    <div class="ticker-item"><span>●</span> API · Webhook · Slack · Teams</div>
+    <div class="ticker-item"><span>●</span> SLA 99.5%</div>
+    <div class="ticker-item"><span>●</span> Хранилище в РФ</div>
+    <div class="ticker-item"><span>●</span> ГОСТ Р 57580</div>
+    <div class="ticker-item"><span>●</span> Мониторинг 24/7</div>
+    <div class="ticker-item"><span>●</span> Задержка уведомления — до 2 часов</div>
+    <div class="ticker-item"><span>●</span> 15+ источников</div>
+    <div class="ticker-item"><span>●</span> API · Webhook · Slack · Teams</div>
+    <div class="ticker-item"><span>●</span> SLA 99.5%</div>
+    <div class="ticker-item"><span>●</span> Хранилище в РФ</div>
+    <div class="ticker-item"><span>●</span> ГОСТ Р 57580</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section style="padding: 0;">
+
+  <!-- Feature 1 -->
+  <div class="feature-block">
+    <div class="feature-photo">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop&q=60" alt="Мониторинг">
+      <div class="feature-photo-overlay"></div>
+      <div class="feature-photo-label">Модуль мониторинга</div>
+    </div>
+    <div class="feature-content reveal">
+      <div class="feature-num">01</div>
+      <div class="feature-icon-wrap">📡</div>
+      <h2 class="feature-title">Автоматический сбор и парсинг</h2>
+      <p class="feature-desc">Система ежечасно обходит 15+ официальных сайтов российских регуляторов, парсит новые документы, сравнивает их с предыдущими версиями и определяет, какие изменения требуют внимания вашей команды.</p>
+      <ul class="feature-points">
+        <li>Структурированный парсинг прав.gov.ru, ФНС, ЦБ, ФАС и других</li>
+        <li>Детектирование изменений на уровне параграфов нормативных актов</li>
+        <li>Автоматическая классификация по типу документа и срочности</li>
+        <li>Дедупликация: каждое изменение попадает в ленту только один раз</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Feature 2 -->
+  <div class="feature-block reverse">
+    <div class="feature-photo">
+      <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&auto=format&fit=crop&q=60" alt="AI анализ">
+      <div class="feature-photo-overlay"></div>
+      <div class="feature-photo-label">AI-обработка</div>
+    </div>
+    <div class="feature-content reveal">
+      <div class="feature-num">02</div>
+      <div class="feature-icon-wrap">🧠</div>
+      <h2 class="feature-title">Умная приоритизация на базе LLM</h2>
+      <p class="feature-desc">Языковая модель анализирует каждый новый документ, извлекает ключевые требования, определяет, каких ролей и подразделений они касаются, и формирует краткое резюме для руководителя на русском языке.</p>
+      <ul class="feature-points">
+        <li>Резюме документа в 3–5 предложениях: суть, срок вступления, риски</li>
+        <li>Автоматическая маркировка по приоритету: критично / важно / к сведению</li>
+        <li>Связывание нового документа с ранее отслеживаемыми актами</li>
+        <li>Настраиваемые фильтры по ключевым словам и регуляторам</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Feature 3 -->
+  <div class="feature-block">
+    <div class="feature-photo">
+      <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&auto=format&fit=crop&q=60" alt="Уведомления">
+      <div class="feature-photo-overlay"></div>
+      <div class="feature-photo-label">Система уведомлений</div>
+    </div>
+    <div class="feature-content reveal">
+      <div class="feature-num">03</div>
+      <div class="feature-icon-wrap">🔔</div>
+      <h2 class="feature-title">Персонализированные алерты</h2>
+      <p class="feature-desc">Каждый сотрудник получает только те уведомления, которые относятся к его зоне ответственности. CFO видит налоговые изменения, compliance-офицер — всё. Никакого информационного шума.</p>
+      <ul class="feature-points">
+        <li>Email-рассылка с настраиваемой частотой: мгновенно, ежедневно или еженедельно</li>
+        <li>Push-уведомления в мобильном приложении для критичных изменений</li>
+        <li>Интеграция с корпоративными мессенджерами (Telegram, Slack, Teams)</li>
+        <li>Еженедельный PDF-дайджест с подписью руководителя compliance</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Feature 4 -->
+  <div class="feature-block reverse">
+    <div class="feature-photo">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60" alt="Архив">
+      <div class="feature-photo-overlay"></div>
+      <div class="feature-photo-label">Архив и аналитика</div>
+    </div>
+    <div class="feature-content reveal">
+      <div class="feature-num">04</div>
+      <div class="feature-icon-wrap">🗂️</div>
+      <h2 class="feature-title">Полнотекстовый архив и аналитика</h2>
+      <p class="feature-desc">Весь архив нормативных изменений доступен для поиска, фильтрации и экспорта. Стройте регуляторную историю вашей отрасли, готовьте отчёты для совета директоров и проверяющих органов.</p>
+      <ul class="feature-points">
+        <li>Полнотекстовый поиск по всем документам за весь период</li>
+        <li>Временная шкала изменений по каждому регулятору и теме</li>
+        <li>Экспорт в Excel, PDF, JSON для интеграции в GRC-системы</li>
+        <li>Журнал аудита: кто просмотрел, кто подтвердил ознакомление</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+<!-- INTEGRATIONS -->
+<section class="integrations">
+  <div class="section-tag">Интеграции</div>
+  <h2 class="section-title reveal">Встраивается в вашу<br>экосистему</h2>
+  <p class="section-sub reveal">ComplianceRadar подключается к инструментам, которые ваша команда уже использует. Без смены процессов.</p>
+
+  <div class="integrations-grid">
+    <div class="integration-card reveal">
+      <div class="integration-icon">💬</div>
+      <div>
+        <div class="integration-name">Telegram</div>
+        <p class="integration-desc">Бот отправляет алерты прямо в корпоративный канал или лично каждому сотруднику.</p>
+      </div>
+      <div class="integration-status">Доступно</div>
+    </div>
+    <div class="integration-card reveal">
+      <div class="integration-icon">🔷</div>
+      <div>
+        <div class="integration-name">Microsoft Teams</div>
+        <p class="integration-desc">Карточки с изменениями появляются в нужных командах без лишних кликов.</p>
+      </div>
+      <div class="integration-status">Доступно</div>
+    </div>
+    <div class="integration-card reveal">
+      <div class="integration-icon">⚡</div>
+      <div>
+        <div class="integration-name">Slack</div>
+        <p class="integration-desc">Webhooks в выбранные каналы, поддержка тредов и реакций для подтверждения ознакомления.</p>
+      </div>
+      <div class="integration-status">Доступно</div>
+    </div>
+    <div class="integration-card reveal">
+      <div class="integration-icon">🔌</div>
+      <div>
+        <div class="integration-name">REST API</div>
+        <p class="integration-desc">Полноценный API для встраивания данных в собственные GRC, ERP и BI-системы.</p>
+      </div>
+      <div class="integration-status">Enterprise</div>
+    </div>
+    <div class="integration-card reveal">
+      <div class="integration-icon">📊</div>
+      <div>
+        <div class="integration-name">Power BI / Tableau</div>
+        <p class="integration-desc">Готовые коннекторы для построения дашбордов регуляторной активности.</p>
+      </div>
+      <div class="integration-status">Enterprise</div>
+    </div>
+    <div class="integration-card reveal">
+      <div class="integration-icon">🔐</div>
+      <div>
+        <div class="integration-name">SSO / LDAP</div>
+        <p class="integration-desc">Единый вход через корпоративный провайдер — Okta, Azure AD, Keycloak и другие.</p>
+      </div>
+      <div class="integration-status">Enterprise</div>
+    </div>
+    <div class="integration-card reveal">
+      <div class="integration-icon">📧</div>
+      <div>
+        <div class="integration-name">Email / SMTP</div>
+        <p class="integration-desc">Отправка через ваш корпоративный почтовый сервер для соответствия политикам ИБ.</p>
+      </div>
+      <div class="integration-status">Доступно</div>
+    </div>
+    <div class="integration-card reveal">
+      <div class="integration-icon">🗃️</div>
+      <div>
+        <div class="integration-name">Confluence / Notion</div>
+        <p class="integration-desc">Автоматический экспорт дайджестов в базу знаний вашей команды.</p>
+      </div>
+      <div class="integration-status">Скоро</div>
+    </div>
+  </div>
+</section>
+
+<!-- API SECTION -->
+<div class="api-section">
+  <div class="reveal">
+    <div class="section-tag">API</div>
+    <h2 class="section-title">Данные туда,<br>куда вам нужно</h2>
+    <p style="font-size:16px;line-height:1.75;color:rgba(245,242,235,0.6);margin-bottom:32px;">REST API с подробной документацией даёт полный доступ к ленте событий, архиву документов и настройкам уведомлений. JSON, webhooks, rate limiting — всё как надо.</p>
+    <a href="contacts.html" class="btn-secondary">Получить доступ к API</a>
+  </div>
+  <div class="code-block reveal">
+    <span class="code-comment">// GET /api/v1/events?limit=3</span><br>
+    {<br>
+    &nbsp;&nbsp;<span class="code-key">"events"</span>: [<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;{<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">"id"</span>: <span class="code-str">"evt_7f2a"</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">"source"</span>: <span class="code-str">"ФНС России"</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">"priority"</span>: <span class="code-val">"critical"</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">"title"</span>: <span class="code-str">"Изменения в НК РФ ст. 346"</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">"effective_date"</span>: <span class="code-str">"2026-03-01"</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">"summary"</span>: <span class="code-str">"Новый порядок расчёта..."</span>,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-key">"tags"</span>: [<span class="code-str">"НДС"</span>, <span class="code-str">"УСН"</span>]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+    &nbsp;&nbsp;],<br>
+    &nbsp;&nbsp;<span class="code-key">"total"</span>: <span class="code-val">142</span><br>
+    }
+  </div>
+</div>
+
+<!-- SECURITY -->
+<section class="security">
+  <div class="section-tag">Безопасность</div>
+  <h2 class="section-title reveal">Ваши данные защищены<br>по российским стандартам</h2>
+  <p class="section-sub reveal">Инфраструктура ComplianceRadar развёрнута исключительно на территории Российской Федерации.</p>
+
+  <div class="security-grid">
+    <div class="security-item reveal">
+      <div class="security-icon">🏛️</div>
+      <div class="security-title">Хранение данных в РФ</div>
+      <p class="security-desc">Вся пользовательская информация хранится на серверах в российских дата-центрах уровня Tier III. Соответствие 242-ФЗ.</p>
+    </div>
+    <div class="security-item reveal">
+      <div class="security-icon">🔒</div>
+      <div class="security-title">Шифрование TLS 1.3 + AES-256</div>
+      <p class="security-desc">Данные шифруются при передаче и хранении. Ключи управляются через HSM, доступ журналируется.</p>
+    </div>
+    <div class="security-item reveal">
+      <div class="security-icon">📋</div>
+      <div class="security-title">ГОСТ Р 57580</div>
+      <p class="security-desc">Система спроектирована с учётом требований ГОСТ к защите информации в финансовых организациях.</p>
+    </div>
+    <div class="security-item reveal">
+      <div class="security-icon">👤</div>
+      <div class="security-title">Ролевая модель доступа</div>
+      <p class="security-desc">Гибкая настройка прав: администратор, compliance-офицер, аналитик, просматривающий — для каждой роли свой набор данных.</p>
+    </div>
+    <div class="security-item reveal">
+      <div class="security-icon">📝</div>
+      <div class="security-title">Журнал аудита</div>
+      <p class="security-desc">Каждое действие пользователя фиксируется и доступно для выгрузки — на случай проверки или внутреннего расследования.</p>
+    </div>
+    <div class="security-item reveal">
+      <div class="security-icon">🛡️</div>
+      <div class="security-title">Пентест и Bug Bounty</div>
+      <p class="security-desc">Ежегодное независимое тестирование на проникновение. Программа вознаграждения за обнаруженные уязвимости.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLA -->
+<section style="background:#0f0f0f;">
+  <div class="section-tag">Надёжность</div>
+  <h2 class="section-title reveal">SLA, которому можно доверять</h2>
+
+  <div class="sla-grid reveal">
+    <div class="sla-item">
+      <div class="sla-num">99.5%</div>
+      <div class="sla-label">Uptime<br>гарантия</div>
+    </div>
+    <div class="sla-item">
+      <div class="sla-num">&lt;2ч</div>
+      <div class="sla-label">Задержка<br>уведомления</div>
+    </div>
+    <div class="sla-item">
+      <div class="sla-num">24/7</div>
+      <div class="sla-label">Поддержка<br>Enterprise</div>
+    </div>
+    <div class="sla-item">
+      <div class="sla-num">4ч</div>
+      <div class="sla-label">Время ответа<br>на инцидент</div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="roadmap" id="roadmap">
+  <div class="section-tag">Разработка</div>
+  <h2 class="section-title reveal">MVP за 3 месяца</h2>
+  <p class="section-sub reveal">Минимальный продукт для крупного бизнеса — надёжная промышленная система с SLA, биллингом и ролевой моделью. Выберите месяц, чтобы увидеть активные модули.</p>
+
+  <div class="roadmap-timeline reveal">
+    <!-- Месяцы -->
+    <div class="roadmap-months">
+      <div class="roadmap-month active" onclick="setMonth(1, this)">Месяц 1</div>
+      <div class="roadmap-month" onclick="setMonth(2, this)">Месяц 2</div>
+      <div class="roadmap-month" onclick="setMonth(3, this)">Месяц 3</div>
+    </div>
+
+    <!-- Трек -->
+    <div class="roadmap-track">
+      <div class="roadmap-track-fill" id="trackFill"></div>
+    </div>
+
+    <!-- Прогресс -->
+    <div class="roadmap-progress-label">
+      <span class="roadmap-progress-text">Готовность MVP</span>
+      <span class="roadmap-progress-pct" id="progressPct">33%</span>
+    </div>
+
+    <!-- Переключатели -->
+    <div class="roadmap-switcher">
+      <button class="roadmap-btn active" onclick="setMonth(1, null, this)">Месяц 1</button>
+      <button class="roadmap-btn" onclick="setMonth(2, null, this)">Месяц 2</button>
+      <button class="roadmap-btn" onclick="setMonth(3, null, this)">Месяц 3</button>
+    </div>
+
+    <!-- Карточки -->
+    <div class="roadmap-cards" id="roadmapCards">
+
+      <!-- Модуль 1: Парсеры -->
+      <div class="roadmap-card" data-months="1,2,3" data-start="1">
+        <div class="roadmap-card-num">Модуль 01</div>
+        <div class="roadmap-card-icon">🔍</div>
+        <div class="roadmap-card-title">Парсеры источников</div>
+        <div class="roadmap-card-desc">pravo.gov.ru, ФНС, ЦБ, РКН — автоматический обход по расписанию каждые 2 часа. Дедупликация, обработка ошибок, алерт при сбое.</div>
+        <div class="roadmap-card-tag">Месяц 1</div>
+      </div>
+
+      <!-- Модуль 2: NLP -->
+      <div class="roadmap-card" data-months="1,2,3" data-start="1">
+        <div class="roadmap-card-num">Модуль 02</div>
+        <div class="roadmap-card-icon">🧠</div>
+        <div class="roadmap-card-title">NLP-классификатор</div>
+        <div class="roadmap-card-desc">Отрасль, тип документа, срочность, дата вступления в силу — через Claude API. Резюме на русском языке для каждого акта.</div>
+        <div class="roadmap-card-tag">Месяц 1–2</div>
+      </div>
+
+      <!-- Модуль 3: Алерты -->
+      <div class="roadmap-card" data-months="2,3" data-start="2">
+        <div class="roadmap-card-num">Модуль 03</div>
+        <div class="roadmap-card-icon">📧</div>
+        <div class="roadmap-card-title">Email + вебхук алерты</div>
+        <div class="roadmap-card-desc">Шаблонные HTML-письма с резюме документа и ссылкой на первоисточник. POST на URL клиента для интеграции с корпоративными системами.</div>
+        <div class="roadmap-card-tag">Месяц 2</div>
+      </div>
+
+      <!-- Модуль 4: Кабинет -->
+      <div class="roadmap-card" data-months="2,3" data-start="2">
+        <div class="roadmap-card-num">Модуль 04</div>
+        <div class="roadmap-card-icon">👤</div>
+        <div class="roadmap-card-title">Личный кабинет</div>
+        <div class="roadmap-card-desc">Мультипользовательский доступ с ролевой моделью. Фильтры, история изменений, управление командой и настройка уведомлений.</div>
+        <div class="roadmap-card-tag">Месяц 2–3</div>
+      </div>
+
+      <!-- Модуль 5: Биллинг -->
+      <div class="roadmap-card" data-months="3" data-start="3">
+        <div class="roadmap-card-num">Модуль 05</div>
+        <div class="roadmap-card-icon">🧾</div>
+        <div class="roadmap-card-title">Корпоративный биллинг</div>
+        <div class="roadmap-card-desc">Выставление счётов, оплата по договору, закрывающие акты. Без кредитных карт — только B2B-схема для юрлиц.</div>
+        <div class="roadmap-card-tag">Месяц 3</div>
+      </div>
+
+      <!-- Модуль 6: SLA -->
+      <div class="roadmap-card" data-months="3" data-start="3">
+        <div class="roadmap-card-num">Модуль 06</div>
+        <div class="roadmap-card-icon">📡</div>
+        <div class="roadmap-card-title">SLA-мониторинг</div>
+        <div class="roadmap-card-desc">Uptime 99.5%, автоматический алерт при сбое парсера. Панель доступности в реальном времени. Журнал инцидентов.</div>
+        <div class="roadmap-card-tag">Месяц 3</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-bg-photo">
+    <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&auto=format&fit=crop&q=60" alt="City">
+  </div>
+  <div class="cta-content">
+    <h2 class="cta-title reveal">Попробуйте 30 дней<br>бесплатно</h2>
+    <p class="cta-sub reveal">Полный функционал. Без кредитной карты. Без обязательств.</p>
+    <div class="cta-actions reveal">
+      <a href="contacts.html" class="btn-primary">Запросить пилот</a>
+      <a href="contacts.html" class="btn-secondary">Назначить демо</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar · 2026
+  </div>
+  <div class="footer-links">
+    <a href="#">Политика конфиденциальности</a>
+    <a href="#">Договор оферты</a>
+    <a href="contacts.html">Контакты</a>
+  </div>
+  <div class="footer-copy">© 2026 ComplianceRadar. Все права защищены.</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Roadmap logic
+  let currentMonth = 1;
+
+  const progress = { 1: 33, 2: 66, 3: 100 };
+  const trackFill = document.getElementById('trackFill');
+  const progressPct = document.getElementById('progressPct');
+
+  function setMonth(month, dotEl, btnEl) {
+    currentMonth = month;
+
+    // Обновить точки-маркеры
+    document.querySelectorAll('.roadmap-month').forEach((el, i) => {
+      el.classList.toggle('active', i + 1 === month);
+    });
+
+    // Обновить кнопки
+    document.querySelectorAll('.roadmap-btn').forEach((el, i) => {
+      el.classList.toggle('active', i + 1 === month);
+    });
+
+    // Прогресс-бар
+    trackFill.style.width = progress[month] + '%';
+    progressPct.textContent = progress[month] + '%';
+
+    // Карточки
+    const cards = document.querySelectorAll('.roadmap-card');
+    cards.forEach(card => {
+      const months = card.dataset.months.split(',').map(Number);
+      const start = parseInt(card.dataset.start);
+      const isVisible = months.includes(month);
+      const isActive = start === month;
+
+      card.classList.remove('visible-card', 'active-card', 'done');
+
+      if (isVisible) {
+        card.classList.add('visible-card');
+        if (isActive) card.classList.add('active-card');
+        if (start < month) card.classList.add('done');
+      }
+    });
+  }
+
+  // Запуск при появлении секции в viewport
+  const roadmapSection = document.getElementById('roadmap');
+  const roadmapObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      setTimeout(() => setMonth(1), 300);
+      roadmapObserver.disconnect();
+    }
+  }, { threshold: 0.3 });
+  if (roadmapSection) roadmapObserver.observe(roadmapSection);
+
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+</script>
+</body>
+</html>

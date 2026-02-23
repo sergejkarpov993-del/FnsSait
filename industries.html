@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Отрасли — ComplianceRadar</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2eb;
+    --cream: #ede9de;
+    --accent: #c8392b;
+    --accent-light: #e8503f;
+    --gold: #b8972a;
+    --mid: #2a2a2a;
+    --gray: #6b6b6b;
+    --border: rgba(200,190,170,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    background: rgba(10,10,10,0.75);
+  }
+
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+
+  .nav-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .nav-cta:hover { background: var(--accent); color: var(--white); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* PAGE HERO */
+  .page-hero {
+    padding: 180px 48px 100px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .page-hero-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.12) saturate(0.3);
+  }
+
+  .page-hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, var(--black) 100%),
+                linear-gradient(to right, var(--black) 0%, transparent 60%);
+  }
+
+  .page-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+  }
+
+  .page-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s ease forwards;
+  }
+
+  .page-title {
+    font-size: clamp(38px, 5vw, 68px);
+    line-height: 1.05;
+    font-weight: 700;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s ease forwards;
+  }
+
+  .page-title em { font-style: italic; color: var(--gold); }
+
+  .page-subtitle {
+    font-size: 18px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.6);
+    max-width: 540px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s ease forwards;
+  }
+
+  /* SECTIONS */
+  section { padding: 100px 48px; }
+
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-size: clamp(28px, 3vw, 48px);
+    line-height: 1.1;
+    font-weight: 700;
+    max-width: 700px;
+    margin-bottom: 24px;
+  }
+
+  .section-sub {
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.6);
+    max-width: 560px;
+    margin-bottom: 64px;
+  }
+
+  /* INDUSTRY HERO CARDS */
+  .industries-hero-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 320px 240px;
+    gap: 3px;
+    background: #111;
+    margin-top: 80px;
+  }
+
+  .ind-hero-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .ind-hero-card.tall { grid-row: span 2; }
+
+  .ind-hero-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4) saturate(0.4);
+    transition: filter 0.5s ease, transform 0.5s ease;
+  }
+
+  .ind-hero-card:hover img {
+    filter: brightness(0.6) saturate(0.6);
+    transform: scale(1.03);
+  }
+
+  .ind-hero-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 50%);
+  }
+
+  .ind-hero-info {
+    position: absolute;
+    bottom: 28px;
+    left: 28px;
+    z-index: 2;
+  }
+
+  .ind-hero-icon { font-size: 24px; margin-bottom: 8px; }
+
+  .ind-hero-name {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .ind-hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* INDUSTRY DETAIL CARDS */
+  .industries-detail {
+    background: #0a0a0a;
+  }
+
+  .industry-detail-card {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 1px;
+  }
+
+  .industry-detail-photo {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .industry-detail-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.35) saturate(0.4);
+    transition: filter 0.5s;
+  }
+
+  .industry-detail-card:hover .industry-detail-photo img {
+    filter: brightness(0.5) saturate(0.6);
+  }
+
+  .industry-detail-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 60%, #0a0a0a 100%);
+  }
+
+  .industry-detail-body {
+    background: #0a0a0a;
+    padding: 52px 56px;
+  }
+
+  .industry-detail-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .industry-detail-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .industry-detail-name {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .industry-detail-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .industry-detail-desc {
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(245,242,235,0.65);
+    margin-bottom: 36px;
+  }
+
+  .industry-regs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .industry-reg-tag {
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: rgba(245,242,235,0.6);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .industry-reg-tag:hover { border-color: var(--gold); color: var(--white); }
+
+  .industry-use-cases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .use-case {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .use-case-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .use-case-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(245,242,235,0.55);
+  }
+
+  /* REGULATORS SECTION */
+  .regulators { background: #0f0f0f; }
+
+  .regulators-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .regulator-card {
+    background: #0f0f0f;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    transition: background 0.2s;
+  }
+
+  .regulator-card:hover { background: #141414; }
+
+  .regulator-abbr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+
+  .regulator-name {
+    font-size: 13px;
+    color: rgba(245,242,235,0.55);
+    line-height: 1.5;
+  }
+
+  .regulator-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  /* CASE STUDIES */
+  .case-studies { background: var(--mid); }
+
+  .cases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .case-card {
+    background: var(--mid);
+    padding: 40px;
+    position: relative;
+  }
+
+  .case-card::before {
+    content: '"';
+    font-family: 'Libre Baskerville', serif;
+    font-size: 80px;
+    color: rgba(184,151,42,0.15);
+    line-height: 1;
+    position: absolute;
+    top: 20px;
+    left: 32px;
+  }
+
+  .case-industry {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    margin-top: 8px;
+  }
+
+  .case-result {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    color: var(--white);
+  }
+
+  .case-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.6);
+    font-style: italic;
+    margin-bottom: 28px;
+  }
+
+  .case-company {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+  }
+
+  /* CTA */
+  .cta-section {
+    position: relative;
+    padding: 140px 48px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .cta-bg-photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .cta-bg-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.1) saturate(0.3);
+  }
+
+  .cta-bg-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 0%, var(--black) 75%);
+  }
+
+  .cta-content { position: relative; z-index: 2; }
+
+  .cta-title {
+    font-size: clamp(32px, 4vw, 58px);
+    line-height: 1.1;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .cta-sub {
+    font-size: 17px;
+    color: rgba(245,242,235,0.6);
+    margin-bottom: 48px;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--white);
+    padding: 16px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+  .btn-secondary {
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 16px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: transparent;
+    transition: border-color 0.2s, background 0.2s;
+    display: inline-block;
+  }
+
+  .btn-secondary:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .footer-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .footer-links { display: flex; gap: 32px; }
+
+  .footer-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--white); }
+
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: rgba(107,107,107,0.5);
+    text-transform: uppercase;
+  }
+
+  /* TICKER */
+  .ticker {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--mid);
+    overflow: hidden;
+    padding: 14px 0;
+  }
+
+  .ticker-inner {
+    display: flex;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    padding: 0 48px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ticker-item span { color: var(--accent); }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── BURGER MENU ── */
+  .burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+    z-index: 200;
+  }
+  .burger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--white);
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,10,10,0.98);
+    z-index: 150;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(20px);
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+    padding: 20px 40px;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+  .mobile-menu a:first-child { border-top: 1px solid var(--border); }
+  .mobile-menu a:hover { color: var(--gold); }
+  .mobile-menu-cta {
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--accent) !important;
+    color: var(--white) !important;
+    border-bottom: none !important;
+    padding: 18px 48px !important;
+    width: auto !important;
+  }
+
+  /* ── TABLET ── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .nav-cta { display: none; }
+    .burger { display: flex; }
+    .page-hero { padding: 140px 24px 80px; }
+    section { padding: 60px 24px; }
+    .industries-hero-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .ind-hero-card.tall { grid-row: auto; }
+    .industry-detail-card { grid-template-columns: 1fr; }
+    .industry-detail-photo { height: 240px; }
+    .industry-use-cases { grid-template-columns: 1fr; }
+    .regulators-grid { grid-template-columns: repeat(2, 1fr); }
+    .cases-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+    .footer-links { flex-direction: column; gap: 16px; }
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    nav { padding: 18px 20px; }
+    .page-hero { padding: 110px 20px 60px; }
+    .page-title { font-size: clamp(30px, 9vw, 46px); }
+    .page-subtitle { font-size: 15px; }
+    section { padding: 56px 20px; }
+    .section-title { font-size: clamp(24px, 7vw, 36px); }
+    .section-sub { font-size: 15px; margin-bottom: 36px; }
+    .industries-hero-grid { grid-template-columns: 1fr; }
+    .ind-hero-card { padding: 28px 20px; }
+    .industry-detail-card { gap: 0; }
+    .industry-detail-photo { height: 200px; }
+    .industry-detail-content { padding: 32px 20px; }
+    .industry-use-cases { gap: 12px; }
+    .use-case-item { padding: 20px; }
+    .regulators-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .regulator-card { padding: 16px; }
+    .cases-grid { grid-template-columns: 1fr; }
+    .case-card { padding: 24px 20px; }
+    .cta-title { font-size: clamp(26px, 8vw, 40px); }
+    .cta-actions { flex-direction: column; gap: 12px; align-items: center; }
+    .cta-actions a { width: 100%; max-width: 320px; text-align: center; }
+    footer { flex-direction: column; gap: 20px; padding: 28px 20px; }
+    .footer-links { flex-wrap: wrap; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar
+  </a>
+  <ul class="nav-links">
+    <li><a href="product.html">Продукт</a></li>
+    <li><a href="industries.html" class="active">Отрасли</a></li>
+    <li><a href="index.html#pricing">Тарифы</a></li>
+    <li><a href="contacts.html">Контакты</a></li>
+  </ul>
+  <a href="contacts.html" class="nav-cta">Запросить демо</a>
+  <button class="burger" id="burger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="product.html">Продукт</a>
+  <a href="industries.html">Отрасли</a>
+  <a href="index.html#pricing">Тарифы</a>
+  <a href="contacts.html">Контакты</a>
+  <a href="contacts.html" class="mobile-menu-cta">Запросить демо</a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-bg">
+    <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&auto=format&fit=crop&q=60" alt="City">
+  </div>
+  <div class="page-hero-content">
+    <div class="page-tag">Отрасли</div>
+    <h1 class="page-title">Compliance-<em>контроль</em><br>для вашей сферы</h1>
+    <p class="page-subtitle">Каждая отрасль имеет свой регуляторный ландшафт. ComplianceRadar настраивается под вашу специфику, а не наоборот.</p>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <div class="ticker-item"><span>●</span> Банки и финансы</div>
+    <div class="ticker-item"><span>●</span> Фармацевтика</div>
+    <div class="ticker-item"><span>●</span> Ритейл и FMCG</div>
+    <div class="ticker-item"><span>●</span> Страхование</div>
+    <div class="ticker-item"><span>●</span> Строительство</div>
+    <div class="ticker-item"><span>●</span> Телеком и IT</div>
+    <div class="ticker-item"><span>●</span> Энергетика</div>
+    <div class="ticker-item"><span>●</span> Банки и финансы</div>
+    <div class="ticker-item"><span>●</span> Фармацевтика</div>
+    <div class="ticker-item"><span>●</span> Ритейл и FMCG</div>
+    <div class="ticker-item"><span>●</span> Страхование</div>
+    <div class="ticker-item"><span>●</span> Строительство</div>
+    <div class="ticker-item"><span>●</span> Телеком и IT</div>
+    <div class="ticker-item"><span>●</span> Энергетика</div>
+  </div>
+</div>
+
+<!-- INDUSTRIES OVERVIEW -->
+<section style="padding: 80px 48px 0;">
+  <div class="section-tag">Охват</div>
+  <h2 class="section-title reveal">7 отраслей.<br>Один инструмент.</h2>
+  <p class="section-sub reveal">Специализированные наборы источников и тегов для каждой сферы. Клиент получает только релевантные изменения — без лишнего шума.</p>
+
+  <div class="industries-hero-grid reveal">
+    <div class="ind-hero-card tall">
+      <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop&q=60" alt="Финансы">
+      <div class="ind-hero-info">
+        <div class="ind-hero-icon">🏦</div>
+        <div class="ind-hero-name">Банки и финансовый сектор</div>
+        <div class="ind-hero-tag">ЦБ РФ · Росфинмониторинг · МСФО</div>
+      </div>
+    </div>
+    <div class="ind-hero-card">
+      <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=60" alt="Фарма">
+      <div class="ind-hero-info">
+        <div class="ind-hero-icon">💊</div>
+        <div class="ind-hero-name">Фармацевтика</div>
+        <div class="ind-hero-tag">Росздравнадзор · GMP</div>
+      </div>
+    </div>
+    <div class="ind-hero-card">
+      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&auto=format&fit=crop&q=60" alt="Страхование">
+      <div class="ind-hero-info">
+        <div class="ind-hero-icon">🛡️</div>
+        <div class="ind-hero-name">Страхование</div>
+        <div class="ind-hero-tag">ЦБ РФ · ОСАГО · Solvency</div>
+      </div>
+    </div>
+    <div class="ind-hero-card">
+      <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&auto=format&fit=crop&q=60" alt="Ритейл">
+      <div class="ind-hero-info">
+        <div class="ind-hero-icon">🛒</div>
+        <div class="ind-hero-name">Ритейл и FMCG</div>
+        <div class="ind-hero-tag">ФАС · Маркировка · Роспотребнадзор</div>
+      </div>
+    </div>
+    <div class="ind-hero-card">
+      <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop&q=60" alt="Строительство">
+      <div class="ind-hero-info">
+        <div class="ind-hero-icon">🏗️</div>
+        <div class="ind-hero-name">Строительство</div>
+        <div class="ind-hero-tag">214-ФЗ · Росреестр · СНиП</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRY DETAILS -->
+<section class="industries-detail">
+  <div class="section-tag">Детально</div>
+  <h2 class="section-title reveal">Что мониторим<br>в каждой отрасли</h2>
+
+  <!-- Финансы -->
+  <div class="industry-detail-card reveal">
+    <div class="industry-detail-photo">
+      <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop&q=60" alt="Финансы">
+      <div class="industry-detail-photo-overlay"></div>
+    </div>
+    <div class="industry-detail-body">
+      <div class="industry-detail-head">
+        <div class="industry-detail-icon">🏦</div>
+        <div>
+          <div class="industry-detail-name">Банки и финансовый сектор</div>
+          <div class="industry-detail-sub">Наиболее плотный регуляторный контроль</div>
+        </div>
+      </div>
+      <p class="industry-detail-desc">Банковская сфера живёт в условиях постоянно меняющихся требований ЦБ — от нормативов достаточности капитала до правил ПОД/ФТ. Упустить изменение означает риск предписания или штрафа. ComplianceRadar агрегирует всё от Банка России, Росфинмониторинга и МФЦ в единую ленту с приоритизацией по критичности.</p>
+      <div class="industry-regs">
+        <div class="industry-reg-tag">ЦБ РФ</div>
+        <div class="industry-reg-tag">Росфинмониторинг</div>
+        <div class="industry-reg-tag">МСФО / РСБУ</div>
+        <div class="industry-reg-tag">115-ФЗ</div>
+        <div class="industry-reg-tag">Базель III</div>
+        <div class="industry-reg-tag">НСПК</div>
+        <div class="industry-reg-tag">АСВ</div>
+      </div>
+      <div class="industry-use-cases">
+        <div class="use-case">
+          <div class="use-case-title">ПОД/ФТ-команды</div>
+          <p class="use-case-text">Автоматический алерт при выходе новых списков, изменении порогов идентификации и требований к досье клиента.</p>
+        </div>
+        <div class="use-case">
+          <div class="use-case-title">Риск-менеджмент</div>
+          <p class="use-case-text">Мгновенное уведомление при изменении нормативов Н1, Н6 и других пруденциальных требований ЦБ.</p>
+        </div>
+        <div class="use-case">
+          <div class="use-case-title">Финансовая отчётность</div>
+          <p class="use-case-text">Отслеживание изменений в стандартах РСБУ и разъяснений по применению МСФО в России.</p>
+        </div>
+        <div class="use-case">
+          <div class="use-case-title">Платёжные сервисы</div>
+          <p class="use-case-text">Мониторинг требований к операторам платёжных систем и агрегаторам — НСПК, регулирование эквайринга.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Телеком и IT -->
+  <div class="industry-detail-card reveal">
+    <div class="industry-detail-photo">
+      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=60" alt="Телеком">
+      <div class="industry-detail-photo-overlay"></div>
+    </div>
+    <div class="industry-detail-body">
+      <div class="industry-detail-head">
+        <div class="industry-detail-icon">📡</div>
+        <div>
+          <div class="industry-detail-name">Телеком и IT</div>
+          <div class="industry-detail-sub">Рост регуляторного давления в 2024–2026</div>
+        </div>
+      </div>
+      <p class="industry-detail-desc">Роскомнадзор активно наращивает требования — от локализации персональных данных и СОРМ до регулирования мессенджеров и маркировки рекламы. Одновременно ФАС следит за доминированием платформ. Скорость реакции здесь критична.</p>
+      <div class="industry-regs">
+        <div class="industry-reg-tag">РКН</div>
+        <div class="industry-reg-tag">152-ФЗ</div>
+        <div class="industry-reg-tag">СОРМ</div>
+        <div class="industry-reg-tag">Минцифры</div>
+        <div class="industry-reg-tag">ФАС</div>
+        <div class="industry-reg-tag">Маркировка рекламы</div>
+      </div>
+      <div class="industry-use-cases">
+        <div class="use-case">
+          <div class="use-case-title">DPO / персональные данные</div>
+          <p class="use-case-text">Изменения 152-ФЗ, новые требования к хранению данных, разъяснения РКН по локализации.</p>
+        </div>
+        <div class="use-case">
+          <div class="use-case-title">Маркетинг и рeklама</div>
+          <p class="use-case-text">Требования к маркировке интернет-рекламы, передаче данных в ЕРИР и работе с ОРД.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Фармацевтика -->
+  <div class="industry-detail-card reveal">
+    <div class="industry-detail-photo">
+      <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=60" alt="Фарма">
+      <div class="industry-detail-photo-overlay"></div>
+    </div>
+    <div class="industry-detail-body">
+      <div class="industry-detail-head">
+        <div class="industry-detail-icon">💊</div>
+        <div>
+          <div class="industry-detail-name">Фармацевтика и медицина</div>
+          <div class="industry-detail-sub">Строгие требования к документированию</div>
+        </div>
+      </div>
+      <p class="industry-detail-desc">Изменения в реестрах препаратов, требованиях GMP, правилах клинических испытаний и стандартах маркировки происходят регулярно. Любой пропуск — угроза для регистрации продукта и репутации компании.</p>
+      <div class="industry-regs">
+        <div class="industry-reg-tag">Росздравнадзор</div>
+        <div class="industry-reg-tag">GMP</div>
+        <div class="industry-reg-tag">ЖНВЛП</div>
+        <div class="industry-reg-tag">Минздрав</div>
+        <div class="industry-reg-tag">ЕАЭС</div>
+        <div class="industry-reg-tag">Честный знак</div>
+      </div>
+      <div class="industry-use-cases">
+        <div class="use-case">
+          <div class="use-case-title">Регуляторные дела</div>
+          <p class="use-case-text">Изменения в процессах регистрации, перерегистрации и пострегистрационного мониторинга препаратов.</p>
+        </div>
+        <div class="use-case">
+          <div class="use-case-title">Производство / QA</div>
+          <p class="use-case-text">Обновления требований GMP, изменения в правилах проверок Росздравнадзора.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Строительство -->
+  <div class="industry-detail-card reveal">
+    <div class="industry-detail-photo">
+      <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=60" alt="Строительство">
+      <div class="industry-detail-photo-overlay"></div>
+    </div>
+    <div class="industry-detail-body">
+      <div class="industry-detail-head">
+        <div class="industry-detail-icon">🏗️</div>
+        <div>
+          <div class="industry-detail-name">Строительство и девелопмент</div>
+          <div class="industry-detail-sub">Долевое строительство, эскроу, земля</div>
+        </div>
+      </div>
+      <p class="industry-detail-desc">Застройщики работают с 214-ФЗ, требованиями к эскроу-счетам, обновлениями СНиП и земельного кодекса. Регуляторный контроль со стороны Росреестра и Дом.РФ постоянно ужесточается.</p>
+      <div class="industry-regs">
+        <div class="industry-reg-tag">214-ФЗ</div>
+        <div class="industry-reg-tag">Росреестр</div>
+        <div class="industry-reg-tag">Дом.РФ</div>
+        <div class="industry-reg-tag">СНиП / ГОСТ</div>
+        <div class="industry-reg-tag">Земельный кодекс</div>
+        <div class="industry-reg-tag">Минстрой</div>
+      </div>
+      <div class="industry-use-cases">
+        <div class="use-case">
+          <div class="use-case-title">Юридический отдел</div>
+          <p class="use-case-text">Изменения в требованиях к проектной декларации, договорам долевого участия и раскрытию информации.</p>
+        </div>
+        <div class="use-case">
+          <div class="use-case-title">Технический надзор</div>
+          <p class="use-case-text">Обновления строительных норм, изменения в процедурах экспертизы проектной документации.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- REGULATORS -->
+<section class="regulators">
+  <div class="section-tag">Источники</div>
+  <h2 class="section-title reveal">15+ регуляторов<br>под постоянным наблюдением</h2>
+  <p class="section-sub reveal">Список пополняется по запросу клиентов. Новый источник добавляется в течение 5 рабочих дней.</p>
+
+  <div class="regulators-grid reveal">
+    <div class="regulator-card">
+      <div class="regulator-abbr">ЦБ РФ</div>
+      <div class="regulator-name">Банк России</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">ФНС</div>
+      <div class="regulator-name">Налоговая служба</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">РКН</div>
+      <div class="regulator-name">Роскомнадзор</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">ФАС</div>
+      <div class="regulator-name">Антимонопольная служба</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">РЗН</div>
+      <div class="regulator-name">Росздравнадзор</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">Минфин</div>
+      <div class="regulator-name">Министерство финансов</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">РПН</div>
+      <div class="regulator-name">Роспотребнадзор</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">РФМ</div>
+      <div class="regulator-name">Росфинмониторинг</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">РР</div>
+      <div class="regulator-name">Росреестр</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">МЭР</div>
+      <div class="regulator-name">Минэкономразвития</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">РТН</div>
+      <div class="regulator-name">Ростехнадзор</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">Минтруд</div>
+      <div class="regulator-name">Министерство труда</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">pravo.gov</div>
+      <div class="regulator-name">Портал правовых актов</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">ГД РФ</div>
+      <div class="regulator-name">Государственная Дума</div>
+      <div class="regulator-count">● Активно</div>
+    </div>
+    <div class="regulator-card">
+      <div class="regulator-abbr">+ запрос</div>
+      <div class="regulator-name">По запросу клиента</div>
+      <div class="regulator-count">5 рабочих дней</div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="case-studies">
+  <div class="section-tag">Результаты</div>
+  <h2 class="section-title reveal">Что получают<br>наши клиенты</h2>
+
+  <div class="cases-grid reveal">
+    <div class="case-card">
+      <div class="case-industry">Банковский сектор</div>
+      <div class="case-result">−25 часов<br>в неделю</div>
+      <p class="case-desc">Команда compliance топ-30 банка перестала вручную проверять сайты регуляторов. Всё приходит автоматически, уже отсортированным по приоритету.</p>
+      <div class="case-company">Региональный банк · 800 сотрудников</div>
+    </div>
+    <div class="case-card">
+      <div class="case-industry">Фармацевтика</div>
+      <div class="case-result">0 пропущенных<br>изменений</div>
+      <p class="case-desc">За 14 месяцев работы ни одно критичное изменение требований Росздравнадзора не осталось незамеченным командой из 3 человек.</p>
+      <div class="case-company">Фармдистрибьютор · Москва</div>
+    </div>
+    <div class="case-card">
+      <div class="case-industry">Ритейл</div>
+      <div class="case-result">×3 скорость<br>реакции</div>
+      <p class="case-desc">Юридический департамент федеральной сети стал получать уведомления об изменениях ФАС и маркировке в день публикации, а не через неделю.</p>
+      <div class="case-company">Федеральная розничная сеть</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-bg-photo">
+    <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&auto=format&fit=crop&q=60" alt="City">
+  </div>
+  <div class="cta-content">
+    <h2 class="cta-title reveal">Подберём решение<br>под вашу отрасль</h2>
+    <p class="cta-sub reveal">Расскажите о вашей сфере — настроим нужные источники и критерии за 1 день.</p>
+    <div class="cta-actions reveal">
+      <a href="contacts.html" class="btn-primary">Запросить демо</a>
+      <a href="contacts.html" class="btn-secondary">Обсудить условия</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar · 2026
+  </div>
+  <div class="footer-links">
+    <a href="#">Политика конфиденциальности</a>
+    <a href="#">Договор оферты</a>
+    <a href="contacts.html">Контакты</a>
+  </div>
+  <div class="footer-copy">© 2026 ComplianceRadar. Все права защищены.</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComplianceRadar — Автоматический мониторинг регуляторных изменений</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2eb;
+    --cream: #ede9de;
+    --accent: #c8392b;
+    --accent-light: #e8503f;
+    --gold: #b8972a;
+    --mid: #2a2a2a;
+    --gray: #6b6b6b;
+    --border: rgba(200,190,170,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    background: rgba(10,10,10,0.75);
+    transition: padding 0.3s;
+  }
+
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+
+  .nav-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .nav-cta:hover { background: var(--accent); color: var(--white); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-photo {
+    position: absolute;
+    top: 0; right: 0;
+    width: 52%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .hero-bg-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: brightness(0.3) saturate(0.4);
+  }
+
+  .hero-bg-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--black) 0%, transparent 40%),
+                linear-gradient(to top, var(--black) 0%, transparent 30%);
+  }
+
+  .hero-left {
+    padding: 160px 48px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s ease forwards;
+  }
+
+  .hero-title {
+    font-size: clamp(42px, 5vw, 72px);
+    line-height: 1.05;
+    font-weight: 700;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s ease forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-subtitle {
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.65);
+    max-width: 460px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s ease forwards;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s ease forwards;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--white);
+    padding: 16px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+  .btn-secondary {
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 16px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    display: inline-block;
+  }
+
+  .btn-secondary:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+
+  .hero-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 140px 48px 80px;
+    z-index: 2;
+  }
+
+  .alert-card {
+    background: rgba(17,17,17,0.92);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 28px 32px;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    animation: fadeUp 0.8s 1s ease forwards;
+  }
+
+  .alert-card::before {
+    content: '● НОВЫЙ ДОКУМЕНТ';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .alert-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+
+  .alert-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .alert-value {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 14px;
+    color: var(--white);
+    text-align: right;
+  }
+
+  .alert-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .alert-summary {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(245,242,235,0.75);
+  }
+
+  .alert-badge {
+    display: inline-block;
+    background: rgba(200,57,43,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(200,57,43,0.3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    margin-top: 16px;
+    text-transform: uppercase;
+  }
+
+  .floating-stat {
+    position: absolute;
+    background: rgba(30,30,30,0.9);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .floating-stat.s1 { top: 18%; right: 8%; animation-delay: 1.3s; }
+  .floating-stat.s2 { bottom: 22%; left: 4%; animation-delay: 1.5s; }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold);
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--border);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── TICKER ── */
+  .ticker {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--mid);
+    overflow: hidden;
+    padding: 14px 0;
+  }
+
+  .ticker-inner {
+    display: flex;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    padding: 0 48px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ticker-item span { color: var(--accent); }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 120px 48px; }
+
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-size: clamp(32px, 3.5vw, 52px);
+    line-height: 1.1;
+    font-weight: 700;
+    max-width: 700px;
+    margin-bottom: 24px;
+  }
+
+  .section-sub {
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.6);
+    max-width: 560px;
+    margin-bottom: 64px;
+  }
+
+  /* ── PHOTO STRIP ── */
+  .photo-strip {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3px;
+    background: #111;
+    padding: 0;
+    height: 420px;
+  }
+
+  .photo-strip-item {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .photo-strip-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55) saturate(0.6);
+    transition: filter 0.5s ease, transform 0.5s ease;
+  }
+
+  .photo-strip-item:hover img {
+    filter: brightness(0.75) saturate(0.8);
+    transform: scale(1.03);
+  }
+
+  .photo-strip-item .photo-label {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,242,235,0.6);
+    border-left: 2px solid var(--gold);
+    padding-left: 10px;
+  }
+
+  /* ── PROBLEM ── */
+  .problem { background: #0f0f0f; }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .problem-item {
+    background: #0f0f0f;
+    padding: 40px;
+  }
+
+  .problem-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.15em;
+    margin-bottom: 20px;
+  }
+
+  .problem-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: rgba(245,242,235,0.85);
+  }
+
+  .problem-text strong {
+    color: var(--white);
+    font-style: italic;
+  }
+
+  /* ── SOCIAL PROOF ── */
+  .social-proof {
+    background: var(--mid);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .quotes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .quote-card {
+    background: var(--mid);
+    padding: 40px;
+    position: relative;
+  }
+
+  .quote-card::before {
+    content: '"';
+    font-family: 'Libre Baskerville', serif;
+    font-size: 80px;
+    color: rgba(184,151,42,0.15);
+    line-height: 1;
+    position: absolute;
+    top: 20px;
+    left: 32px;
+  }
+
+  .quote-text {
+    font-size: 16px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.8);
+    font-style: italic;
+    margin-bottom: 28px;
+    padding-top: 20px;
+  }
+
+  .quote-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .quote-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: brightness(0.85) saturate(0.5);
+    border: 1px solid var(--border);
+  }
+
+  .quote-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .quote-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+  }
+
+  /* ── HOW ── */
+  .how-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-top: 64px;
+  }
+
+  .step {
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 48px;
+    font-weight: 300;
+    color: rgba(245,242,235,0.06);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .step-icon { font-size: 24px; margin-bottom: 16px; }
+
+  .step-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .step-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.55);
+  }
+
+  /* ── DASHBOARD SECTION ── */
+  .dashboard-section {
+    background: #0d0d0d;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 580px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dashboard-photo {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dashboard-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4) saturate(0.4) hue-rotate(200deg);
+  }
+
+  .dashboard-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 60%, #0d0d0d 100%);
+  }
+
+  .dashboard-text {
+    padding: 80px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .feature-list {
+    list-style: none;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .feature-list li {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .feature-content h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .feature-content p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(245,242,235,0.5);
+  }
+
+  /* ── SOURCES ── */
+  .sources-section { background: #0f0f0f; }
+
+  .sources-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 48px;
+  }
+
+  .source-tag {
+    border: 1px solid var(--border);
+    padding: 12px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: rgba(245,242,235,0.6);
+    transition: border-color 0.2s, color 0.2s;
+    cursor: default;
+  }
+
+  .source-tag:hover { border-color: var(--gold); color: var(--white); }
+
+  /* ── METRICS ── */
+  .metrics { background: #0f0f0f; }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .metric {
+    background: #0f0f0f;
+    padding: 48px 36px;
+    text-align: center;
+  }
+
+  .metric-num {
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .metric-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+  /* ── PRICING ── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .plan {
+    background: var(--black);
+    padding: 48px 40px;
+    transition: background 0.2s;
+  }
+
+  .plan:hover { background: #111; }
+  .plan.featured { background: var(--mid); }
+
+  .plan-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .plan-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .plan-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.08em;
+    margin-bottom: 32px;
+  }
+
+  .plan-price {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+    color: var(--white);
+  }
+
+  .plan-period {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.08em;
+    margin-bottom: 36px;
+  }
+
+  .plan-features {
+    list-style: none;
+    margin-bottom: 40px;
+  }
+
+  .plan-features li {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(245,242,235,0.65);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .plan-features li::before {
+    content: '→';
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── COMPARE ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .compare-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding: 20px 28px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: #0f0f0f;
+  }
+
+  .compare-table th.highlight { color: var(--white); background: var(--mid); }
+
+  .compare-table td {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: rgba(245,242,235,0.65);
+    vertical-align: middle;
+  }
+
+  .compare-table td:first-child {
+    font-family: 'Libre Baskerville', serif;
+    color: var(--white);
+    font-size: 15px;
+  }
+
+  .compare-table td.highlight { background: rgba(42,42,42,0.5); }
+  .check { color: #5cb85c; }
+  .cross { color: var(--accent); opacity: 0.5; }
+
+  /* ── INDUSTRIES ── */
+  .industries { background: #080808; }
+
+  .industries-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .industry-card {
+    background: #080808;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: background 0.3s;
+  }
+
+  .industry-card:hover { background: #111; }
+
+  .industry-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+  }
+
+  .industry-card:hover::before { transform: scaleX(1); }
+
+  .industry-photo {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    filter: brightness(0.4) saturate(0.3);
+    margin-bottom: 24px;
+    transition: filter 0.3s;
+  }
+
+  .industry-card:hover .industry-photo {
+    filter: brightness(0.55) saturate(0.5);
+  }
+
+  .industry-icon { font-size: 28px; margin-bottom: 16px; }
+
+  .industry-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .industry-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(245,242,235,0.5);
+    margin-bottom: 16px;
+  }
+
+  .industry-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .industry-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    border: 1px solid rgba(184,151,42,0.3);
+    padding: 3px 8px;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .cta-bg-photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .cta-bg-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.12) saturate(0.2);
+  }
+
+  .cta-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.85) 100%);
+    z-index: 1;
+  }
+
+  .cta-title {
+    font-size: clamp(36px, 4vw, 64px);
+    line-height: 1.1;
+    font-weight: 700;
+    max-width: 700px;
+    margin: 0 auto 24px;
+  }
+
+  .cta-sub {
+    font-size: 17px;
+    color: rgba(245,242,235,0.55);
+    margin-bottom: 48px;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #050505;
+  }
+
+  .footer-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(107,107,107,0.5);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 32px;
+  }
+
+  .footer-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--white); }
+
+  /* ── ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  /* ── BURGER MENU ── */
+  .burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+    z-index: 200;
+  }
+
+  .burger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--white);
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,10,10,0.98);
+    z-index: 150;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    backdrop-filter: blur(20px);
+  }
+
+  .mobile-menu.open { display: flex; }
+
+  .mobile-menu a {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+    padding: 20px 40px;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+
+  .mobile-menu a:first-child { border-top: 1px solid var(--border); }
+  .mobile-menu a:hover { color: var(--gold); }
+
+  .mobile-menu-cta {
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--accent) !important;
+    color: var(--white) !important;
+    border-bottom: none !important;
+    padding: 18px 48px !important;
+    width: auto !important;
+  }
+
+  /* ── TABLET ── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .nav-cta { display: none; }
+    .burger { display: flex; }
+
+    .hero { grid-template-columns: 1fr; }
+    .hero::after { display: none; }
+    .hero-bg-photo { width: 100%; opacity: 0.4; }
+    .hero-left { padding: 120px 24px 60px; }
+    .hero-right { display: none; }
+
+    section { padding: 80px 24px; }
+    .problem-grid, .pricing-grid, .metrics-grid, .quotes-grid, .industries-grid { grid-template-columns: 1fr; }
+    .how-steps { grid-template-columns: 1fr; }
+    .photo-strip { grid-template-columns: 1fr 1fr; height: auto; }
+    .photo-strip-item { height: 180px; }
+    .dashboard-section { grid-template-columns: 1fr; }
+    .dashboard-photo { height: 300px; }
+    .dashboard-text { padding: 48px 24px; }
+    footer { flex-direction: column; gap: 20px; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; }
+    .compare-table { font-size: 13px; }
+    .compare-table th, .compare-table td { padding: 14px 16px; }
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    nav { padding: 18px 20px; }
+
+    .hero-left { padding: 100px 20px 60px; }
+    .hero-title { font-size: clamp(36px, 10vw, 52px); }
+    .hero-subtitle { font-size: 15px; }
+    .hero-actions { flex-direction: column; gap: 12px; }
+    .hero-actions a { width: 100%; text-align: center; padding: 16px 20px; }
+
+    section { padding: 64px 20px; }
+    .section-title { font-size: clamp(26px, 7vw, 38px); }
+    .section-sub { font-size: 15px; margin-bottom: 40px; }
+
+    .photo-strip { grid-template-columns: 1fr; }
+    .photo-strip-item { height: 180px; }
+    .photo-strip-item:nth-child(2), .photo-strip-item:nth-child(3) { display: none; }
+
+    .problem-item { padding: 28px 20px; }
+    .problem-text { font-size: 16px; }
+
+    .quote-card { padding: 32px 24px; }
+    .quote-text { font-size: 14px; }
+
+    .step { padding-top: 24px; }
+    .step-num { font-size: 36px; }
+    .step-title { font-size: 18px; }
+    .step-desc { font-size: 14px; }
+
+    .dashboard-text { padding: 40px 20px; }
+    .feature-content h4 { font-size: 15px; }
+    .feature-content p { font-size: 13px; }
+
+    .industry-card { padding: 28px 20px; }
+    .industry-photo { height: 120px; }
+
+    .sources-grid { gap: 8px; }
+    .source-tag { font-size: 11px; padding: 10px 14px; }
+
+    .metric { padding: 36px 20px; }
+    .metric-num { font-size: 44px; }
+
+    .plan { padding: 36px 24px; }
+    .plan-price { font-size: 34px; }
+
+    .compare-table { display: none; }
+
+    .cta-title { font-size: clamp(28px, 8vw, 44px); }
+    .cta-sub { font-size: 15px; }
+    .cta-actions { flex-direction: column; gap: 12px; align-items: center; }
+    .cta-actions a { width: 100%; max-width: 320px; text-align: center; }
+
+    footer { padding: 32px 20px; gap: 24px; }
+    .footer-links { flex-direction: column; gap: 14px; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar
+  </a>
+  <ul class="nav-links">
+    <li><a href="product.html">Продукт</a></li>
+    <li><a href="industries.html">Отрасли</a></li>
+    <li><a href="index.html#pricing">Тарифы</a></li>
+    <li><a href="contacts.html">Контакты</a></li>
+  </ul>
+  <a href="contacts.html" class="nav-cta">Запросить демо</a>
+  <button class="burger" id="burger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="product.html">Продукт</a>
+  <a href="industries.html">Отрасли</a>
+  <a href="index.html#pricing">Тарифы</a>
+  <a href="contacts.html">Контакты</a>
+  <a href="contacts.html" class="mobile-menu-cta">Запросить демо</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-photo">
+    <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&auto=format&fit=crop&q=60" alt="Moscow City">
+  </div>
+
+  <div class="hero-left">
+    <p class="hero-tag">B2B SaaS · Регуляторный мониторинг · 2026</p>
+    <h1 class="hero-title">
+      Ни одного пропущенного<br>
+      <em>регуляторного</em><br>
+      изменения
+    </h1>
+    <p class="hero-subtitle">
+      Автоматический парсинг ФНС, ЦБ, Роскомнадзора и других регуляторов. Точечные уведомления нужным сотрудникам — в момент публикации.
+    </p>
+    <div class="hero-actions">
+      <a href="contacts.html" class="btn-primary">Запросить демо</a>
+      <a href="product.html" class="btn-secondary">Как это работает →</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="floating-stat s1">
+      <div class="stat-num">2ч</div>
+      <div class="stat-label">Частота мониторинга</div>
+    </div>
+    <div class="alert-card">
+      <div class="alert-row">
+        <span class="alert-label">Регулятор</span>
+        <span class="alert-value">Банк России</span>
+      </div>
+      <div class="alert-row">
+        <span class="alert-label">Документ</span>
+        <span class="alert-value">Положение №800-П</span>
+      </div>
+      <div class="alert-row">
+        <span class="alert-label">Отрасль</span>
+        <span class="alert-value">Банки / Капитал</span>
+      </div>
+      <div class="alert-divider"></div>
+      <p class="alert-summary">
+        Уточнены требования к расчёту норматива Н1.1 — вступает в силу <strong>01.04.2026</strong>. Требуется адаптация методологии.
+      </p>
+      <span class="alert-badge">⚠ Срочность: Высокая</span>
+    </div>
+    <div class="floating-stat s2">
+      <div class="stat-num">₽180К</div>
+      <div class="stat-label">Средний контракт/мес</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <div class="ticker-item"><span>●</span> publication.pravo.gov.ru</div>
+    <div class="ticker-item"><span>●</span> ФНС России</div>
+    <div class="ticker-item"><span>●</span> Банк России</div>
+    <div class="ticker-item"><span>●</span> Роскомнадзор</div>
+    <div class="ticker-item"><span>●</span> Минфин РФ</div>
+    <div class="ticker-item"><span>●</span> Росздравнадзор</div>
+    <div class="ticker-item"><span>●</span> Росреестр</div>
+    <div class="ticker-item"><span>●</span> ФАС России</div>
+    <div class="ticker-item"><span>●</span> Роспотребнадзор</div>
+    <div class="ticker-item"><span>●</span> publication.pravo.gov.ru</div>
+    <div class="ticker-item"><span>●</span> ФНС России</div>
+    <div class="ticker-item"><span>●</span> Банк России</div>
+    <div class="ticker-item"><span>●</span> Роскомнадзор</div>
+    <div class="ticker-item"><span>●</span> Минфин РФ</div>
+    <div class="ticker-item"><span>●</span> Росздравнадзор</div>
+    <div class="ticker-item"><span>●</span> Росреестр</div>
+    <div class="ticker-item"><span>●</span> ФАС России</div>
+    <div class="ticker-item"><span>●</span> Роспотребнадзор</div>
+  </div>
+</div>
+
+<!-- PHOTO STRIP -->
+<div class="photo-strip">
+  <div class="photo-strip-item">
+    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&auto=format&fit=crop&q=60" alt="Office">
+    <div class="photo-label">Compliance-дирекция</div>
+  </div>
+  <div class="photo-strip-item">
+    <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&auto=format&fit=crop&q=60" alt="Documents">
+    <div class="photo-label">Нормативные акты</div>
+  </div>
+  <div class="photo-strip-item">
+    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60" alt="Analytics">
+    <div class="photo-label">Аналитика рисков</div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="section-tag">Проблема</div>
+  <h2 class="section-title reveal">Compliance-отделы тонут<br>в ручной работе</h2>
+  <p class="section-sub reveal">Крупные компании работают в условиях постоянно меняющейся регуляторной среды. Каждый пропуск — это риск.</p>
+
+  <div class="problem-grid reveal">
+    <div class="problem-item">
+      <div class="problem-num">01</div>
+      <p class="problem-text">Юрист вручную обходит <strong>10–15 сайтов регуляторов</strong> ежедневно — без гарантии, что ничего не пропущено</p>
+    </div>
+    <div class="problem-item">
+      <div class="problem-num">02</div>
+      <p class="problem-text"><strong>2–3 часа в день</strong> на одного специалиста. Отдел из 10 человек теряет 25+ рабочих часов в неделю</p>
+    </div>
+    <div class="problem-item">
+      <div class="problem-num">03</div>
+      <p class="problem-text">Telegram-каналы и рассылки — <strong>основной «инструмент»</strong> оперативного оповещения. Это ненадёжно</p>
+    </div>
+    <div class="problem-item">
+      <div class="problem-num">04</div>
+      <p class="problem-text">Штраф за пропущенное требование 152-ФЗ или ЦБ — <strong>десятки миллионов рублей.</strong> Цена ошибки несопоставима</p>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section class="social-proof">
+  <div class="section-tag">Что говорят клиенты</div>
+  <h2 class="section-title reveal">Отзывы compliance-директоров</h2>
+
+  <div class="quotes-grid">
+    <div class="quote-card reveal">
+      <p class="quote-text">Раньше наш отдел тратил по три часа в день только на проверку сайтов ФНС и ЦБ. ComplianceRadar полностью убрал эту рутину. Теперь мы реагируем на изменения, а не ищем их.</p>
+      <div class="quote-author">
+        <img class="quote-avatar" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&auto=format&fit=crop&q=60" alt="Автор">
+        <div>
+          <div class="quote-name">Андрей Соколов</div>
+          <div class="quote-role">Chief Compliance Officer, Крупный банк</div>
+        </div>
+      </div>
+    </div>
+    <div class="quote-card reveal">
+      <p class="quote-text">Когда вышли новые требования по 152-ФЗ в марте, мы получили уведомление в тот же день. Раньше это заняло бы неделю, а штраф мог составить до 18 млн рублей.</p>
+      <div class="quote-author">
+        <img class="quote-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=60" alt="Автор">
+        <div>
+          <div class="quote-name">Марина Волкова</div>
+          <div class="quote-role">Директор юридического департамента, Страхование</div>
+        </div>
+      </div>
+    </div>
+    <div class="quote-card reveal">
+      <p class="quote-text">Пилот за 30 дней убедил. Интеграция с нашим Bitrix24 заняла один день. ROI очевиден: стоимость сервиса — это треть зарплаты одного аналитика.</p>
+      <div class="quote-author">
+        <img class="quote-avatar" src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&auto=format&fit=crop&q=60" alt="Автор">
+        <div>
+          <div class="quote-name">Дмитрий Ларин</div>
+          <div class="quote-role">Директор по рискам, Телеком</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="section-tag">Как работает</div>
+  <h2 class="section-title reveal">От публикации до уведомления — за минуты</h2>
+  <p class="section-sub reveal">Не информационный шум, а точечная доставка. Каждый сотрудник получает только то, что касается его зоны ответственности.</p>
+
+  <div class="how-steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div class="step-icon">🔍</div>
+      <h3 class="step-title">Мониторинг каждые 2 часа</h3>
+      <p class="step-desc">Система автоматически сканирует все официальные источники по расписанию. Новые документы попадают в пайплайн немедленно после публикации.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div class="step-icon">🧠</div>
+      <h3 class="step-title">NLP-классификация</h3>
+      <p class="step-desc">Каждый документ проходит через языковую модель: отрасль, тип, затронутые статьи, дата вступления в силу, уровень срочности — всё автоматически.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div class="step-icon">📌</div>
+      <h3 class="step-title">Точечное уведомление</h3>
+      <p class="step-desc">Юрист по банковскому праву получает только банковское право. Email, вебхук, Teams, Slack, Bitrix24 — куда удобно команде.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD PHOTO SECTION -->
+<div class="dashboard-section">
+  <div class="dashboard-photo">
+    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=60" alt="Dashboard analytics">
+  </div>
+  <div class="dashboard-text">
+    <div class="section-tag">Платформа</div>
+    <h2 class="section-title reveal" style="max-width:100%">Всё в одном<br>интерфейсе</h2>
+    <ul class="feature-list reveal">
+      <li>
+        <div class="feature-icon">📊</div>
+        <div class="feature-content">
+          <h4>Дашборд регуляторных изменений</h4>
+          <p>Полная картина изменений за день, неделю, месяц. Фильтры по регулятору, отрасли, срочности.</p>
+        </div>
+      </li>
+      <li>
+        <div class="feature-icon">🔔</div>
+        <div class="feature-content">
+          <h4>Ролевая модель уведомлений</h4>
+          <p>Каждый сотрудник видит только свои документы. Банковский юрист — не получает приказы Минздрава.</p>
+        </div>
+      </li>
+      <li>
+        <div class="feature-icon">📄</div>
+        <div class="feature-content">
+          <h4>Еженедельный PDF-дайджест</h4>
+          <p>Автоматический отчёт для руководства — список всех изменений за неделю с резюме.</p>
+        </div>
+      </li>
+      <li>
+        <div class="feature-icon">🔗</div>
+        <div class="feature-content">
+          <h4>API и интеграции</h4>
+          <p>Подключение к GRC-системам, SAP, корпоративным мессенджерам через webhook.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- INDUSTRIES -->
+<section class="industries" id="industries">
+  <div class="section-tag">Отрасли</div>
+  <h2 class="section-title reveal">Для кого работает ComplianceRadar</h2>
+  <p class="section-sub reveal">Продукт настраивается под конкретную отрасль. Ваши юристы получают только релевантные регуляторы и нормы.</p>
+
+  <div class="industries-grid">
+    <div class="industry-card reveal">
+      <img class="industry-photo" src="https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?w=600&auto=format&fit=crop&q=60" alt="Банки">
+      <div class="industry-icon">🏦</div>
+      <h3 class="industry-name">Банки и финтех</h3>
+      <p class="industry-desc">Мониторинг требований ЦБ, обновлений инструкций, Basel-адаптаций. Среди клиентов — банки из ТОП-50.</p>
+      <div class="industry-tags">
+        <span class="industry-tag">ЦБ РФ</span>
+        <span class="industry-tag">Basel III</span>
+        <span class="industry-tag">АМЛ</span>
+        <span class="industry-tag">Н1.1</span>
+      </div>
+    </div>
+    <div class="industry-card reveal">
+      <img class="industry-photo" src="https://images.unsplash.com/photo-1559526324-593bc073d938?w=600&auto=format&fit=crop&q=60" alt="Телеком">
+      <div class="industry-icon">📡</div>
+      <h3 class="industry-name">Телеком и IT</h3>
+      <p class="industry-desc">152-ФЗ, требования Роскомнадзора, локализация данных, закон о суверенном интернете.</p>
+      <div class="industry-tags">
+        <span class="industry-tag">152-ФЗ</span>
+        <span class="industry-tag">РКН</span>
+        <span class="industry-tag">СОРМ</span>
+      </div>
+    </div>
+    <div class="industry-card reveal">
+      <img class="industry-photo" src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=60" alt="Фарма">
+      <div class="industry-icon">💊</div>
+      <h3 class="industry-name">Фармацевтика</h3>
+      <p class="industry-desc">Изменения в требованиях Росздравнадзора, регистрация препаратов, клинические стандарты.</p>
+      <div class="industry-tags">
+        <span class="industry-tag">Росздравнадзор</span>
+        <span class="industry-tag">ЖНВЛП</span>
+        <span class="industry-tag">GMP</span>
+      </div>
+    </div>
+    <div class="industry-card reveal">
+      <img class="industry-photo" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&auto=format&fit=crop&q=60" alt="Ритейл">
+      <div class="industry-icon">🛒</div>
+      <h3 class="industry-name">Ритейл и FMCG</h3>
+      <p class="industry-desc">Изменения в законодательстве о торговле, маркировке товаров, антимонопольные требования ФАС.</p>
+      <div class="industry-tags">
+        <span class="industry-tag">ФАС</span>
+        <span class="industry-tag">Маркировка</span>
+        <span class="industry-tag">Роспотребнадзор</span>
+      </div>
+    </div>
+    <div class="industry-card reveal">
+      <img class="industry-photo" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&auto=format&fit=crop&q=60" alt="Страхование">
+      <div class="industry-icon">🛡️</div>
+      <h3 class="industry-name">Страхование</h3>
+      <p class="industry-desc">Требования ЦБ к страховщикам, изменения тарифного регулирования ОСАГО, нормативы платёжеспособности.</p>
+      <div class="industry-tags">
+        <span class="industry-tag">ЦБ РФ</span>
+        <span class="industry-tag">ОСАГО</span>
+        <span class="industry-tag">Solvency</span>
+      </div>
+    </div>
+    <div class="industry-card reveal">
+      <img class="industry-photo" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop&q=60" alt="Строительство">
+      <div class="industry-icon">🏗️</div>
+      <h3 class="industry-name">Строительство и девелопмент</h3>
+      <p class="industry-desc">Обновления СНиП, эскроу-требования, изменения в долевом строительстве и земельном кодексе.</p>
+      <div class="industry-tags">
+        <span class="industry-tag">214-ФЗ</span>
+        <span class="industry-tag">Росреестр</span>
+        <span class="industry-tag">СНиП</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="sources-section">
+  <div class="section-tag">Источники мониторинга</div>
+  <h2 class="section-title reveal">15+ официальных источников</h2>
+  <p class="section-sub reveal">Покрываем все ключевые российские регуляторы. Список постоянно расширяется по запросу клиентов.</p>
+
+  <div class="sources-grid reveal">
+    <div class="source-tag">publication.pravo.gov.ru</div>
+    <div class="source-tag">ФНС России</div>
+    <div class="source-tag">Банк России</div>
+    <div class="source-tag">Роскомнадзор</div>
+    <div class="source-tag">Минфин РФ</div>
+    <div class="source-tag">Росздравнадзор</div>
+    <div class="source-tag">Росреестр</div>
+    <div class="source-tag">ФАС России</div>
+    <div class="source-tag">Роспотребнадзор</div>
+    <div class="source-tag">Минтруд РФ</div>
+    <div class="source-tag">Ростехнадзор</div>
+    <div class="source-tag">Росфинмониторинг</div>
+    <div class="source-tag">Минэкономразвития</div>
+    <div class="source-tag">ФСФР / МосБиржа</div>
+    <div class="source-tag">+ по запросу</div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section class="metrics">
+  <div class="section-tag">В цифрах</div>
+  <h2 class="section-title reveal">Экономика понятна</h2>
+
+  <div class="metrics-grid reveal">
+    <div class="metric">
+      <div class="metric-num">2ч</div>
+      <div class="metric-label">Задержка до<br>уведомления</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">25+</div>
+      <div class="metric-label">Рабочих часов<br>экономии в неделю</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">₽150К</div>
+      <div class="metric-label">Стоимость одного<br>аналитика compliance</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">30д</div>
+      <div class="metric-label">Пилот бесплатно<br>перед контрактом</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-tag">Тарифы</div>
+  <h2 class="section-title reveal">Дешевле одного аналитика.<br>Работает 24/7.</h2>
+  <p class="section-sub reveal">Все тарифы — годовые контракты с оплатой по счёту. Скидка 10% при оплате за год вперёд.</p>
+
+  <div class="pricing-grid">
+    <div class="plan reveal">
+      <span class="plan-badge">Старт</span>
+      <h3 class="plan-name">Базовый</h3>
+      <p class="plan-desc">1 юрлицо · до 5 пользователей</p>
+      <div class="plan-price">₽80К</div>
+      <p class="plan-period">в месяц · при годовой оплате</p>
+      <ul class="plan-features">
+        <li>До 5 регуляторов</li>
+        <li>Email-уведомления</li>
+        <li>Архив за 12 месяцев</li>
+        <li>Персонализированные теги</li>
+        <li>Поддержка по email</li>
+      </ul>
+      <a href="contacts.html" class="btn-secondary" style="width:100%;text-align:center;display:block;">Начать пилот</a>
+    </div>
+    <div class="plan featured reveal">
+      <span class="plan-badge">● Популярный</span>
+      <h3 class="plan-name">Профессиональный</h3>
+      <p class="plan-desc">1 юрлицо · до 20 пользователей</p>
+      <div class="plan-price">₽150К</div>
+      <p class="plan-period">в месяц · при годовой оплате</p>
+      <ul class="plan-features">
+        <li>Все регуляторы</li>
+        <li>Email + вебхук + мессенджеры</li>
+        <li>Полный архив</li>
+        <li>Ролевая модель доступа</li>
+        <li>Еженедельный PDF-дайджест</li>
+        <li>SLA 99.5% · поддержка 24/7</li>
+      </ul>
+      <a href="contacts.html" class="btn-primary" style="width:100%;text-align:center;display:block;">Начать пилот</a>
+    </div>
+    <div class="plan reveal">
+      <span class="plan-badge">Enterprise</span>
+      <h3 class="plan-name">Корпоративный</h3>
+      <p class="plan-desc">Несколько юрлиц · без лимита</p>
+      <div class="plan-price">₽250К+</div>
+      <p class="plan-period">в месяц · индивидуально</p>
+      <ul class="plan-features">
+        <li>Все функции Профи</li>
+        <li>API для GRC-систем</li>
+        <li>SSO / LDAP интеграция</li>
+        <li>Кастомные отраслевые модели</li>
+        <li>Выделенный менеджер</li>
+        <li>On-premise по запросу</li>
+      </ul>
+      <a href="contacts.html" class="btn-secondary" style="width:100%;text-align:center;display:block;">Обсудить условия</a>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section style="background:#0f0f0f;">
+  <div class="section-tag">Сравнение</div>
+  <h2 class="section-title reveal">ComplianceRadar vs альтернативы</h2>
+
+  <table class="compare-table reveal">
+    <thead>
+      <tr>
+        <th>Критерий</th>
+        <th class="highlight">ComplianceRadar</th>
+        <th>Консультант+ / Гарант</th>
+        <th>Ручной мониторинг</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Проактивные алерты</td>
+        <td class="highlight"><span class="check">✓</span> В момент публикации</td>
+        <td><span class="cross">✗</span> Только поиск</td>
+        <td><span class="cross">✗</span> Может быть пропущено</td>
+      </tr>
+      <tr>
+        <td>Персонализация</td>
+        <td class="highlight"><span class="check">✓</span> По ролям и отраслям</td>
+        <td><span class="cross">✗</span> Общая лента</td>
+        <td>Зависит от человека</td>
+      </tr>
+      <tr>
+        <td>Интеграции</td>
+        <td class="highlight"><span class="check">✓</span> Teams, Slack, API</td>
+        <td><span class="cross">✗</span> Нет</td>
+        <td><span class="cross">✗</span> Нет</td>
+      </tr>
+      <tr>
+        <td>Стоимость/мес</td>
+        <td class="highlight">От ₽80К</td>
+        <td>~₽30–60К (без алертов)</td>
+        <td>₽150–250К (зарплата)</td>
+      </tr>
+      <tr>
+        <td>Работает 24/7</td>
+        <td class="highlight"><span class="check">✓</span></td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="cross">✗</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="cta-bg-photo">
+    <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&auto=format&fit=crop&q=60" alt="City">
+  </div>
+  <div class="cta-content">
+    <h2 class="cta-title reveal">Запросите демо<br>для вашей отрасли</h2>
+    <p class="cta-sub reveal">30 дней бесплатного пилота. Без обязательств. Без предоплаты.</p>
+    <div class="cta-actions reveal">
+      <a href="contacts.html" class="btn-primary">Написать нам</a>
+      <a href="contacts.html" class="btn-secondary">Запросить звонок</a>
+    </div>
+    <p style="margin-top:28px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.08em;" class="reveal">
+      hello@complianceradar.ru &nbsp;·&nbsp; +7 (495) 123-45-67
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <span class="logo-dot"></span>
+    ComplianceRadar · 2026
+  </div>
+  <div class="footer-links">
+    <a href="#">Политика конфиденциальности</a>
+    <a href="#">Договор оферты</a>
+    <a href="contacts.html">Контакты</a>
+  </div>
+  <div class="footer-copy">© 2026 ComplianceRadar. Все права защищены.</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Burger menu
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+</script>
+</body>
+</html>
