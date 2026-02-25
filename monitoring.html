@@ -626,6 +626,154 @@
     color: var(--white);
   }
 
+  /* ── FILTER BAR (новый) ── */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .filter-bar .filter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--gray);
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+
+  .filter-bar .select-wrapper {
+    position: relative;
+  }
+
+  .filter-bar .select-wrapper::after {
+    content: '▾';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+    font-size: 10px;
+    pointer-events: none;
+  }
+
+  .filter-bar select {
+    appearance: none;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 32px 8px 14px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s, color 0.15s;
+    min-width: 160px;
+  }
+
+  .filter-bar select option {
+    background: #1a1a1a;
+    color: var(--white);
+  }
+
+  .filter-bar select:hover { border-color: rgba(200,190,170,0.4); }
+  .filter-bar select:focus { border-color: var(--accent); }
+
+  .sort-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .sort-btn {
+    background: rgba(255,255,255,0.02);
+    border: none;
+    color: var(--gray);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .sort-btn + .sort-btn { border-left: 1px solid var(--border); }
+  .sort-btn:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+
+  .sort-btn.active {
+    background: rgba(200,57,43,0.08);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px rgba(200,57,43,0.25);
+  }
+
+  .filter-bar .bar-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 4px;
+  }
+
+  .filter-bar .bar-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .filter-bar .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* pills */
+  .active-filters {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    min-height: 24px;
+  }
+
+  .pill {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--gray);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  .pill .pill-x {
+    color: var(--gray);
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+    transition: color 0.1s;
+  }
+
+  .pill .pill-x:hover { color: var(--accent); }
+
   /* LOAD MORE */
   .load-more-wrap {
     display: flex;
@@ -1048,23 +1196,53 @@
     </div>
   </div>
 
-  <!-- CONTROLS -->
-  <div class="controls">
-    <div class="filters">
-      <button class="filter-btn" id="filterMy" onclick="setPersonal(this)">★ Мои</button>
-      <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">Все</button>
-      <button class="filter-btn urgent" data-filter="urgent" onclick="setFilter('urgent', this)">⚠ Срочные</button>
-      <button class="filter-btn" data-filter="pravo" onclick="setFilter('pravo', this)">pravo.gov.ru</button>
-      <button class="filter-btn" data-filter="nalog" onclick="setFilter('nalog', this)">nalog.gov.ru</button>
+  <!-- FILTER BAR -->
+  <div>
+    <div class="filter-bar">
+
+      <!-- Сайт -->
+      <div class="filter-group">
+        <span class="filter-label">Сайт</span>
+        <div class="select-wrapper">
+          <select id="siteSelect" onchange="onSiteChange()">
+            <option value="">Все сайты</option>
+            <option value="pravo">PRAVO.GOV.RU</option>
+            <option value="nalog">NALOG.GOV.RU</option>
+            <option value="my">Мои</option>
+            <option value="urgent">Срочные</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="bar-divider"></div>
+
+      <!-- Порядок -->
+      <div class="filter-group">
+        <span class="filter-label">Порядок</span>
+        <div class="sort-toggle">
+          <button class="sort-btn active" id="btnNew" onclick="setSortOrder('new')">
+            <span>↑</span> Новые
+          </button>
+          <button class="sort-btn" id="btnOld" onclick="setSortOrder('old')">
+            <span>↓</span> Старые
+          </button>
+        </div>
+      </div>
+
+      <!-- Правые кнопки -->
+      <div class="bar-actions">
+        <button class="btn-refresh" onclick="loadAll()" id="refreshBtn">
+          <span id="refreshIcon">↻</span> Обновить
+        </button>
+        <button class="btn-parse" onclick="triggerParse()" id="parseBtn">
+          ▶ Запустить парсинг
+        </button>
+      </div>
+
     </div>
-    <div class="action-btns">
-      <button class="btn-refresh" onclick="loadAll()" id="refreshBtn">
-        <span id="refreshIcon">↻</span> Обновить
-      </button>
-      <button class="btn-parse" onclick="triggerParse()" id="parseBtn">
-        ▶ Запустить парсинг
-      </button>
-    </div>
+
+    <!-- Активные фильтры (pills) -->
+    <div class="active-filters" id="pills"></div>
   </div>
 
   <!-- DOCUMENTS -->
@@ -1312,23 +1490,62 @@
     icon.classList.remove('spin');
   }
 
-  // ── FILTER ────────────────────────────────────────────────────
+  // ── FILTER BAR ────────────────────────────────────────────────
 
-  function setPersonal(btn) {
-    showPersonal = true;
-    currentFilter = 'all';
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+  let currentSortOrder = 'new'; // 'new' | 'old'
+
+  function setSortOrder(val) {
+    currentSortOrder = val;
+    document.getElementById('btnNew').classList.toggle('active', val === 'new');
+    document.getElementById('btnOld').classList.toggle('active', val === 'old');
+    updatePills();
     loadDocs(true);
   }
 
-  function setFilter(filter, btn) {
-    showPersonal = false;
-    currentFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+  function onSiteChange() {
+    const val = document.getElementById('siteSelect').value;
+    showPersonal = val === 'my';
+    if (val === 'my') currentFilter = 'all';
+    else if (val === 'urgent') currentFilter = 'urgent';
+    else if (val === 'pravo') currentFilter = 'pravo';
+    else if (val === 'nalog') currentFilter = 'nalog';
+    else currentFilter = 'all';
+    updatePills();
     loadDocs(true);
   }
+
+  function updatePills() {
+    const site = document.getElementById('siteSelect');
+    const pills = document.getElementById('pills');
+    pills.innerHTML = '';
+
+    if (site.value) {
+      pills.appendChild(makePill(site.options[site.selectedIndex].text, () => {
+        site.value = '';
+        currentFilter = 'all';
+        showPersonal = false;
+        updatePills();
+        loadDocs(true);
+      }));
+    }
+
+    if (currentSortOrder !== 'new') {
+      pills.appendChild(makePill('↓ Старые', () => setSortOrder('new')));
+    }
+  }
+
+  function makePill(label, onRemove) {
+    const d = document.createElement('div');
+    d.className = 'pill';
+    d.innerHTML = `${label} <span class="pill-x">✕</span>`;
+    d.querySelector('.pill-x').onclick = onRemove;
+    return d;
+  }
+
+  // ── FILTER (legacy, теперь через select) ─────────────────────
+
+  function setPersonal(btn) { /* legacy — handled by select */ }
+  function setFilter(filter, btn) { /* legacy — handled by select */ }
 
   // ── PARSE TRIGGER ─────────────────────────────────────────────
 
