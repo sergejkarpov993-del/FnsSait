@@ -1055,6 +1055,11 @@
   html {
     font-size: 150%;
   }
+
+  /* ── ПЕРЕХОДЫ МЕЖДУ СТРАНИЦАМИ ── */
+  body { opacity: 1; transition: opacity 0.25s ease; }
+  body.page-exit { opacity: 0; }
+
 </style>
 </head>
 <body>
@@ -1713,6 +1718,31 @@
     window.location.href = 'login.html';
   }
 
+
+  // ── АВТОФИЛЬТР ПО ОТРАСЛИ ПОСЛЕ ОНБОРДИНГА ────────────────
+  const INDUSTRY_SOURCE_MAP = {
+    bank: 'cbr', insurance: 'cbr', telecom: 'nalog',
+    retail: 'nalog', pharma: 'nalog', construction: 'nalog',
+    energy: 'nalog', manufacturing: 'nalog'
+  };
+
+  function applyIndustryFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const industry = params.get('industry');
+    if (!industry) return;
+
+    // Показываем приветственный тост
+    setTimeout(() => showToast(`✓ Мониторинг настроен под вашу отрасль`, 'success'), 500);
+
+    // Предвыбираем "Мои" если есть токен, иначе ничего
+    if (CR_TOKEN) {
+      selectedSites = [{val: 'my', label: 'Мои'}];
+      updateDropdownUI();
+      updatePills();
+    }
+  }
+
+  applyIndustryFromUrl();
   loadAll();
 
   // Автообновление каждые 2 минуты
