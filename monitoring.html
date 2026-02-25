@@ -738,6 +738,54 @@
     gap: 8px;
   }
 
+  /* site dropdown */
+  .site-dropdown-btn {
+    appearance: none;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    cursor: pointer;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.15s;
+  }
+  .site-dropdown-btn:hover { border-color: rgba(200,190,170,0.4); }
+
+  .site-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 200;
+    background: #161616;
+    border: 1px solid var(--border);
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .site-option {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .site-option:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+  .site-option.selected { color: var(--accent); }
+  .site-option.selected::after { content: "✓"; font-size: 11px; }
+
   /* pills */
   .active-filters {
     display: flex;
@@ -1205,20 +1253,23 @@
   <div>
     <div class="filter-bar">
 
-      <!-- Сайт -->
-      <div class="filter-group">
+      <!-- Сайт (мультивыбор) -->
+      <div class="filter-group" style="position:relative;">
         <span class="filter-label">Сайт</span>
-        <div class="select-wrapper">
-          <select id="siteSelect" onchange="onSiteChange()">
-            <option value="">Все сайты</option>
-            <option value="pravo">PRAVO.GOV.RU</option>
-            <option value="nalog">NALOG.GOV.RU</option>
-            <option value="cbr">CBR.RU</option>
-            <option value="consultant">CONSULTANT.RU</option>
-            <option value="rg">RG.RU</option>
-            <option value="my">Мои</option>
-            <option value="urgent">Срочные</option>
-          </select>
+        <div class="select-wrapper" id="siteDropdownWrap">
+          <button class="site-dropdown-btn" id="siteDropdownBtn" onclick="toggleSiteDropdown(event)">
+            <span id="siteDropdownLabel">Все сайты</span>
+            <span style="margin-left:8px;font-size:10px;color:var(--gray);">▾</span>
+          </button>
+          <div class="site-dropdown-menu" id="siteDropdownMenu" style="display:none;">
+            <div class="site-option" onclick="toggleSite('pravo','PRAVO.GOV.RU')">PRAVO.GOV.RU</div>
+            <div class="site-option" onclick="toggleSite('nalog','NALOG.GOV.RU')">NALOG.GOV.RU</div>
+            <div class="site-option" onclick="toggleSite('cbr','CBR.RU')">CBR.RU</div>
+            <div class="site-option" onclick="toggleSite('consultant','CONSULTANT.RU')">CONSULTANT.RU</div>
+            <div class="site-option" onclick="toggleSite('rg','RG.RU')">RG.RU</div>
+            <div class="site-option" onclick="toggleSite('my','Мои')">Мои</div>
+            <div class="site-option" onclick="toggleSite('urgent','Срочные')">Срочные</div>
+          </div>
         </div>
       </div>
 
@@ -1374,20 +1425,32 @@
 
   // ── DOCUMENTS ─────────────────────────────────────────────────
 
+  // Маппинг val -> source param
+  const SOURCE_MAP = {
+    pravo: 'pravo.gov.ru', nalog: 'nalog.gov.ru', cbr: 'cbr.ru',
+    consultant: 'consultant.ru', rg: 'rg.ru'
+  };
+
   function buildParams(offset = 0) {
     const params = new URLSearchParams({ limit: PAGE_SIZE, offset });
-    if (currentFilter === 'urgent') params.set('urgency', 'true');
-    if (currentFilter === 'pravo') params.set('source', 'pravo.gov.ru');
-    if (currentFilter === 'nalog') params.set('source', 'nalog.gov.ru');
-    if (currentFilter === 'cbr') params.set('source', 'cbr.ru');
-    if (currentFilter === 'consultant') params.set('source', 'consultant.ru');
-    if (currentFilter === 'rg') params.set('source', 'rg.ru');
     params.set('order', currentSortOrder === 'old' ? 'asc' : 'desc');
+
+    const hasUrgent = selectedSites.some(s => s.val === 'urgent');
+    if (hasUrgent) { params.set('urgency', 'true'); return params.toString(); }
+
+    // Источники (может быть несколько)
+    const sources = selectedSites
+      .filter(s => SOURCE_MAP[s.val])
+      .map(s => SOURCE_MAP[s.val]);
+    if (sources.length === 1) params.set('source', sources[0]);
+    // Если несколько — API не поддерживает, фильтруем на клиенте (см. loadDocs)
+
     return params.toString();
   }
 
   function getDocsUrl(offset) {
-    if (showPersonal && currentFilter === 'all' && CR_TOKEN) {
+    const hasMy = selectedSites.some(s => s.val === 'my');
+    if (hasMy && CR_TOKEN) {
       return `${API}/documents/my?limit=${PAGE_SIZE}&offset=${offset}`;
     }
     return `${API}/documents?${buildParams(offset)}`;
@@ -1504,7 +1567,64 @@
 
   // ── FILTER BAR ────────────────────────────────────────────────
 
-  let currentSortOrder = 'new'; // 'new' | 'old'
+  let currentSortOrder = 'new';
+  let selectedSites = []; // массив выбранных сайтов [{val, label}]
+
+  // Закрываем dropdown при клике вне
+  document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('siteDropdownWrap');
+    if (wrap && !wrap.contains(e.target)) {
+      document.getElementById('siteDropdownMenu').style.display = 'none';
+    }
+  });
+
+  function toggleSiteDropdown(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('siteDropdownMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function toggleSite(val, label) {
+    const idx = selectedSites.findIndex(s => s.val === val);
+    if (idx === -1) {
+      // Особые фильтры — только один одновременно
+      if (val === 'my' || val === 'urgent') {
+        selectedSites = [{val, label}];
+      } else {
+        // Убираем my/urgent если были
+        selectedSites = selectedSites.filter(s => s.val !== 'my' && s.val !== 'urgent');
+        selectedSites.push({val, label});
+      }
+    } else {
+      selectedSites.splice(idx, 1);
+    }
+    updateDropdownUI();
+    updatePills();
+    loadDocs(true);
+  }
+
+  function removeSite(val) {
+    selectedSites = selectedSites.filter(s => s.val !== val);
+    updateDropdownUI();
+    updatePills();
+    loadDocs(true);
+  }
+
+  function updateDropdownUI() {
+    // Обновляем галочки в меню
+    document.querySelectorAll('.site-option').forEach(el => {
+      const onclick = el.getAttribute('onclick');
+      const match = onclick && onclick.match(/toggleSite\('([^']+)'/);
+      if (match) {
+        el.classList.toggle('selected', selectedSites.some(s => s.val === match[1]));
+      }
+    });
+    // Обновляем лейбл кнопки
+    const btn = document.getElementById('siteDropdownLabel');
+    btn.textContent = selectedSites.length === 0 ? 'Все сайты'
+      : selectedSites.length === 1 ? selectedSites[0].label
+      : `${selectedSites.length} сайта`;
+  }
 
   function setSortOrder(val) {
     currentSortOrder = val;
@@ -1514,36 +1634,12 @@
     loadDocs(true);
   }
 
-  function onSiteChange() {
-    const val = document.getElementById('siteSelect').value;
-    showPersonal = val === 'my';
-    if (val === 'my') currentFilter = 'all';
-    else if (val === 'urgent') currentFilter = 'urgent';
-    else if (val === 'pravo') currentFilter = 'pravo';
-    else if (val === 'nalog') currentFilter = 'nalog';
-    else if (val === 'cbr') currentFilter = 'cbr';
-    else if (val === 'consultant') currentFilter = 'consultant';
-    else if (val === 'rg') currentFilter = 'rg';
-    else currentFilter = 'all';
-    updatePills();
-    loadDocs(true);
-  }
-
   function updatePills() {
-    const site = document.getElementById('siteSelect');
     const pills = document.getElementById('pills');
     pills.innerHTML = '';
-
-    if (site.value) {
-      pills.appendChild(makePill(site.options[site.selectedIndex].text, () => {
-        site.value = '';
-        currentFilter = 'all';
-        showPersonal = false;
-        updatePills();
-        loadDocs(true);
-      }));
-    }
-
+    selectedSites.forEach(s => {
+      pills.appendChild(makePill(s.label, () => removeSite(s.val)));
+    });
     if (currentSortOrder !== 'new') {
       pills.appendChild(makePill('↓ Старые', () => setSortOrder('new')));
     }
@@ -1557,7 +1653,7 @@
     return d;
   }
 
-  // ── FILTER (legacy, теперь через select) ─────────────────────
+  // ── FILTER (legacy) ───────────────────────────────────────────
 
   function setPersonal(btn) { /* legacy — handled by select */ }
   function setFilter(filter, btn) { /* legacy — handled by select */ }
