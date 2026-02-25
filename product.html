@@ -224,7 +224,7 @@
   /* FEATURE BLOCKS */
   .feature-block {
     display: grid;
-    grid-template-columns: 38% 62%;
+    grid-template-columns: 35% 65%;
     gap: 1px;
     background: var(--border);
     border: 1px solid var(--border);
@@ -232,10 +232,10 @@
   }
 
   .feature-block.reverse {
-    grid-template-columns: 62% 38%;
+    grid-template-columns: 35% 65%;
   }
 
-  .feature-block.reverse .feature-photo { order: 2; }
+  .feature-block.reverse .feature-photo { order: 2; max-width: 100%; }
   .feature-block.reverse .feature-content { order: 1; }
 
   .feature-photo {
@@ -814,7 +814,7 @@
   <!-- Feature 2 -->
   <div class="feature-block reverse">
     <div class="feature-photo">
-      <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=60" alt="AI анализ">
+      <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?w=800&auto=format&fit=crop&q=60" alt="AI анализ">
       <div class="feature-photo-overlay"></div>
       <div class="feature-photo-label">AI-обработка</div>
     </div>
