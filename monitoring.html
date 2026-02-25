@@ -1208,6 +1208,9 @@
             <option value="">Все сайты</option>
             <option value="pravo">PRAVO.GOV.RU</option>
             <option value="nalog">NALOG.GOV.RU</option>
+            <option value="cbr">CBR.RU</option>
+            <option value="consultant">CONSULTANT.RU</option>
+            <option value="rg">RG.RU</option>
             <option value="my">Мои</option>
             <option value="urgent">Срочные</option>
           </select>
@@ -1371,6 +1374,10 @@
     if (currentFilter === 'urgent') params.set('urgency', 'true');
     if (currentFilter === 'pravo') params.set('source', 'pravo.gov.ru');
     if (currentFilter === 'nalog') params.set('source', 'nalog.gov.ru');
+    if (currentFilter === 'cbr') params.set('source', 'cbr.ru');
+    if (currentFilter === 'consultant') params.set('source', 'consultant.ru');
+    if (currentFilter === 'rg') params.set('source', 'rg.ru');
+    params.set('order', currentSortOrder === 'old' ? 'asc' : 'desc');
     return params.toString();
   }
 
@@ -1509,6 +1516,9 @@
     else if (val === 'urgent') currentFilter = 'urgent';
     else if (val === 'pravo') currentFilter = 'pravo';
     else if (val === 'nalog') currentFilter = 'nalog';
+    else if (val === 'cbr') currentFilter = 'cbr';
+    else if (val === 'consultant') currentFilter = 'consultant';
+    else if (val === 'rg') currentFilter = 'rg';
     else currentFilter = 'all';
     updatePills();
     loadDocs(true);
