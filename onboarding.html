@@ -117,6 +117,11 @@
   html {
     font-size: 150%;
   }
+
+  /* ── ПЕРЕХОДЫ МЕЖДУ СТРАНИЦАМИ ── */
+  body { opacity: 1; transition: opacity 0.25s ease; }
+  body.page-exit { opacity: 0; }
+
 </style>
 </head>
 <body>
@@ -357,8 +362,10 @@
       }
     } catch {}
 
-    // В любом случае переходим на мониторинг
-    window.location.href = 'monitoring.html';
+    // Передаём отрасль в мониторинг через URL-параметр
+    const industry = selectedIndustry || '';
+    const industryParam = industry ? `?industry=${encodeURIComponent(industry)}` : '';
+    window.location.href = `monitoring.html${industryParam}`;
   }
 </script>
 </body>
