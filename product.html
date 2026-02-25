@@ -788,88 +788,138 @@
 </div>
 
 <!-- FEATURES -->
-<section style="padding: 0;">
+<section style="padding:0;">
 
-  <!-- Feature 1 -->
-  <div class="feature-block">
-    <div class="feature-photo">
-      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=60" alt="Мониторинг">
-      <div class="feature-photo-overlay"></div>
-      <div class="feature-photo-label">Модуль мониторинга</div>
+  <!-- Общий стиль блока: нет фото, только текст + большой номер фоном -->
+
+  <!-- 01 -->
+  <div style="border:1px solid var(--border); margin-bottom:1px; background:#0a0a0a; position:relative; overflow:hidden; padding:64px 72px;">
+    <div style="position:absolute;right:56px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:220px;font-weight:700;color:rgba(184,151,42,0.035);line-height:1;pointer-events:none;user-select:none;">01</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:48px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;">01 — Сбор данных</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
-    <div class="feature-content reveal">
-      <div class="feature-num">01</div>
-      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M8 12a4 4 0 0 1 8 0"/><path d="M4.5 12a7.5 7.5 0 0 1 15 0"/></svg></div>
-      <h2 class="feature-title">Автоматический сбор и парсинг</h2>
-      <p class="feature-desc">Система ежечасно обходит 15+ официальных сайтов российских регуляторов, парсит новые документы, сравнивает их с предыдущими версиями и определяет, какие изменения требуют внимания вашей команды.</p>
-      <ul class="feature-points">
-        <li>Структурированный парсинг прав.gov.ru, ФНС, ЦБ, ФАС и других</li>
-        <li>Детектирование изменений на уровне параграфов нормативных актов</li>
-        <li>Автоматическая классификация по типу документа и срочности</li>
-        <li>Дедупликация: каждое изменение попадает в ленту только один раз</li>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+      <div>
+        <h2 style="font-size:clamp(26px,2.8vw,42px);font-weight:700;line-height:1.15;margin-bottom:20px;">Автоматический сбор<br>и парсинг</h2>
+        <p style="font-size:17px;line-height:1.75;color:rgba(245,242,235,0.6);margin:0;">Система ежечасно обходит 15+ официальных сайтов российских регуляторов, парсит новые документы, сравнивает их с предыдущими версиями и определяет, какие изменения требуют внимания вашей команды.</p>
+      </div>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px;padding-top:8px;">
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Структурированный парсинг прав.gov.ru, ФНС, ЦБ, ФАС и других</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Детектирование изменений на уровне параграфов нормативных актов</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Автоматическая классификация по типу документа и срочности</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Дедупликация: каждое изменение попадает в ленту только один раз</span>
+        </li>
       </ul>
     </div>
   </div>
 
-  <!-- Feature 2 -->
-  <div class="feature-block reverse">
-    <div class="feature-photo">
-      <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?w=800&auto=format&fit=crop&q=60" alt="AI анализ">
-      <div class="feature-photo-overlay"></div>
-      <div class="feature-photo-label">AI-обработка</div>
+  <!-- 02 -->
+  <div style="border:1px solid var(--border); margin-bottom:1px; background:#080808; position:relative; overflow:hidden; padding:64px 72px;">
+    <div style="position:absolute;right:56px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:220px;font-weight:700;color:rgba(184,151,42,0.035);line-height:1;pointer-events:none;user-select:none;">02</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:48px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;">02 — AI-обработка</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
-    <div class="feature-content reveal">
-      <div class="feature-num">02</div>
-      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="6" cy="8" r="1.5"/><circle cx="18" cy="8" r="1.5"/><circle cx="12" cy="16" r="1.5"/><path d="M7.5 8h9M6 9.5l4.5 5M18 9.5l-4.5 5"/></svg></div>
-      <h2 class="feature-title">Умная приоритизация на базе LLM</h2>
-      <p class="feature-desc">Языковая модель анализирует каждый новый документ, извлекает ключевые требования, определяет, каких ролей и подразделений они касаются, и формирует краткое резюме для руководителя на русском языке.</p>
-      <ul class="feature-points">
-        <li>Резюме документа в 3–5 предложениях: суть, срок вступления, риски</li>
-        <li>Автоматическая маркировка по приоритету: критично / важно / к сведению</li>
-        <li>Связывание нового документа с ранее отслеживаемыми актами</li>
-        <li>Настраиваемые фильтры по ключевым словам и регуляторам</li>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+      <div>
+        <h2 style="font-size:clamp(26px,2.8vw,42px);font-weight:700;line-height:1.15;margin-bottom:20px;">Умная приоритизация<br>на базе LLM</h2>
+        <p style="font-size:17px;line-height:1.75;color:rgba(245,242,235,0.6);margin:0;">Языковая модель анализирует каждый новый документ, извлекает ключевые требования, определяет каких ролей и подразделений они касаются, и формирует краткое резюме для руководителя на русском языке.</p>
+      </div>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px;padding-top:8px;">
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Резюме документа в 3–5 предложениях: суть, срок вступления, риски</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Автоматическая маркировка по приоритету: критично / важно / к сведению</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Связывание нового документа с ранее отслеживаемыми актами</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Настраиваемые фильтры по ключевым словам и регуляторам</span>
+        </li>
       </ul>
     </div>
   </div>
 
-  <!-- Feature 3 -->
-  <div class="feature-block">
-    <div class="feature-photo">
-      <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&auto=format&fit=crop&q=60" alt="Уведомления">
-      <div class="feature-photo-overlay"></div>
-      <div class="feature-photo-label">Система уведомлений</div>
+  <!-- 03 -->
+  <div style="border:1px solid var(--border); margin-bottom:1px; background:#0a0a0a; position:relative; overflow:hidden; padding:64px 72px;">
+    <div style="position:absolute;right:56px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:220px;font-weight:700;color:rgba(184,151,42,0.035);line-height:1;pointer-events:none;user-select:none;">03</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:48px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;">03 — Уведомления</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
-    <div class="feature-content reveal">
-      <div class="feature-num">03</div>
-      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg></div>
-      <h2 class="feature-title">Персонализированные алерты</h2>
-      <p class="feature-desc">Каждый сотрудник получает только те уведомления, которые относятся к его зоне ответственности. CFO видит налоговые изменения, compliance-офицер — всё. Никакого информационного шума.</p>
-      <ul class="feature-points">
-        <li>Email-рассылка с настраиваемой частотой: мгновенно, ежедневно или еженедельно</li>
-        <li>Push-уведомления в мобильном приложении для критичных изменений</li>
-        <li>Интеграция с корпоративными мессенджерами (Telegram, Slack, Teams)</li>
-        <li>Еженедельный PDF-дайджест с подписью руководителя compliance</li>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+      <div>
+        <h2 style="font-size:clamp(26px,2.8vw,42px);font-weight:700;line-height:1.15;margin-bottom:20px;">Персонализированные<br>алерты</h2>
+        <p style="font-size:17px;line-height:1.75;color:rgba(245,242,235,0.6);margin:0;">Каждый сотрудник получает только те уведомления, которые относятся к его зоне ответственности. CFO видит налоговые изменения, compliance-офицер — всё. Никакого информационного шума.</p>
+      </div>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px;padding-top:8px;">
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Email-рассылка с настраиваемой частотой: мгновенно, ежедневно или еженедельно</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Push-уведомления в мобильном приложении для критичных изменений</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Интеграция с корпоративными мессенджерами (Telegram, Slack, Teams)</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Еженедельный PDF-дайджест с подписью руководителя compliance</span>
+        </li>
       </ul>
     </div>
   </div>
 
-  <!-- Feature 4 -->
-  <div class="feature-block reverse">
-    <div class="feature-photo">
-      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60" alt="Архив">
-      <div class="feature-photo-overlay"></div>
-      <div class="feature-photo-label">Архив и аналитика</div>
+  <!-- 04 -->
+  <div style="border:1px solid var(--border); margin-bottom:1px; background:#080808; position:relative; overflow:hidden; padding:64px 72px;">
+    <div style="position:absolute;right:56px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:220px;font-weight:700;color:rgba(184,151,42,0.035);line-height:1;pointer-events:none;user-select:none;">04</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:48px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;">04 — Архив и аналитика</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
-    <div class="feature-content reveal">
-      <div class="feature-num">04</div>
-      <div class="feature-icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9z"/><path d="M10 14h4"/></svg></div>
-      <h2 class="feature-title">Полнотекстовый архив и аналитика</h2>
-      <p class="feature-desc">Весь архив нормативных изменений доступен для поиска, фильтрации и экспорта. Стройте регуляторную историю вашей отрасли, готовьте отчёты для совета директоров и проверяющих органов.</p>
-      <ul class="feature-points">
-        <li>Полнотекстовый поиск по всем документам за весь период</li>
-        <li>Временная шкала изменений по каждому регулятору и теме</li>
-        <li>Экспорт в Excel, PDF, JSON для интеграции в GRC-системы</li>
-        <li>Журнал аудита: кто просмотрел, кто подтвердил ознакомление</li>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+      <div>
+        <h2 style="font-size:clamp(26px,2.8vw,42px);font-weight:700;line-height:1.15;margin-bottom:20px;">Полнотекстовый архив<br>и аналитика</h2>
+        <p style="font-size:17px;line-height:1.75;color:rgba(245,242,235,0.6);margin:0;">Весь архив нормативных изменений доступен для поиска, фильтрации и экспорта. Стройте регуляторную историю вашей отрасли, готовьте отчёты для совета директоров и проверяющих органов.</p>
+      </div>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px;padding-top:8px;">
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Полнотекстовый поиск по всем документам за весь период</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Временная шкала изменений по каждому регулятору и теме</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Экспорт в Excel, PDF, JSON для интеграции в GRC-системы</span>
+        </li>
+        <li style="display:flex;gap:16px;align-items:flex-start;">
+          <span style="color:var(--gold);flex-shrink:0;font-family:'JetBrains Mono',monospace;">→</span>
+          <span style="font-size:16px;color:rgba(245,242,235,0.8);line-height:1.55;">Журнал аудита: кто просмотрел, кто подтвердил ознакомление</span>
+        </li>
       </ul>
     </div>
   </div>
