@@ -1295,7 +1295,7 @@
   const API = 'https://fnsbot-production.up.railway.app';
   const CR_TOKEN = localStorage.getItem('cr_token');
   const CR_USER = JSON.parse(localStorage.getItem('cr_user') || 'null');
-  let showPersonal = !!CR_TOKEN;
+  let showPersonal = false; // включается только при выборе «Мои» в фильтре
   let currentFilter = 'all';
   let currentOffset = 0;
   const PAGE_SIZE = 20;
