@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Отрасли — ComplianceRadar</title>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --black: #0a0a0a;
@@ -24,7 +24,7 @@
   body {
     background: var(--black);
     color: var(--white);
-    font-family: 'Libre Baskerville', Georgia, serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
 
@@ -85,7 +85,7 @@
 
   .nav-links a {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--gray);
@@ -778,7 +778,48 @@
     footer { flex-direction: column; gap: 20px; padding: 28px 20px; }
     .footer-links { flex-wrap: wrap; gap: 12px; }
   }
-</style>
+
+    /* ── ЧИТАЕМОСТЬ: ГЛОБАЛЬНЫЕ ПЕРЕОПРЕДЕЛЕНИЯ ── */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+      font-size: 15px;
+      line-height: 1.7;
+      letter-spacing: 0 !important;
+    }
+    h1, h2, h3, h4 {
+      font-family: 'Libre Baskerville', Georgia, serif !important;
+      letter-spacing: -0.01em;
+    }
+    /* Только метки, теги, кнопки — моноширинный */
+    .form-tag, .step-tag, .section-num, .stat-label, .doc-source,
+    .filter-btn, .tag-item, .badge, .nav-link, .logo,
+    code, .code-label, .mono {
+      font-family: 'JetBrains Mono', monospace !important;
+    }
+    /* Весь основной текст — Inter */
+    p, li, .step-desc, .stat-desc, .doc-summary, .doc-title,
+    .form-sub, .left-meta, .field label, input, textarea, select,
+    .notif-desc, .ind-desc, .step-text, .nav-links a {
+      font-family: 'Inter', system-ui, sans-serif !important;
+      letter-spacing: 0.01em;
+    }
+    /* Увеличенные размеры для читаемости */
+    .stat-label { font-size: 12px !important; letter-spacing: 0.08em !important; }
+    .doc-source { font-size: 11px !important; }
+    .filter-btn { font-size: 12px !important; }
+    input, .field input { font-size: 14px !important; letter-spacing: 0 !important; }
+    .nav-links a { font-size: 13px !important; letter-spacing: 0.06em !important; }
+    .form-sub { font-size: 15px !important; font-family: 'Inter', sans-serif !important; letter-spacing: 0 !important; }
+    /* stat value крупнее */
+    .stat-value { font-size: clamp(36px, 5vw, 56px) !important; }
+    /* doc title читаемость */
+    .doc-title { font-size: 16px !important; font-weight: 600 !important; line-height: 1.4 !important; }
+    .doc-summary { font-size: 14px !important; line-height: 1.7 !important; color: rgba(245,242,235,0.65) !important; }
+    /* source bar */
+    .source-name { font-size: 13px !important; }
+    .source-count { font-size: 22px !important; }
+
+  </style>
 </head>
 <body>
 
