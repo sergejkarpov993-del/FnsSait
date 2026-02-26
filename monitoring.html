@@ -3,1750 +3,1244 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Мониторинг — ComplianceRadar</title>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>ComplianceRadar — Мониторинг законодательства</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --black: #0a0a0a;
-    --white: #f5f2eb;
-    --cream: #ede9de;
-    --accent: #c8392b;
-    --accent-light: #e8503f;
-    --gold: #b8972a;
-    --mid: #2a2a2a;
-    --gray: #6b6b6b;
-    --border: rgba(200,190,170,0.2);
-    --green: #4caf7d;
-    --API: 'https://fnsbot-production.up.railway.app';
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --accent: #e8c547;
+    --accent2: #ff6b35;
+    --text: #f0efe8;
+    --muted: #7a7a8a;
+    --urgent: #ff4444;
+    --green: #3ddc84;
+    --blue: #4da6ff;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
 
   body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Golos Text', sans-serif;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
+  /* Grain overlay */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none;
-    z-index: 9999;
+    z-index: 1000;
     opacity: 0.4;
   }
 
-  /* NAV */
-  nav {
+  /* SIDEBAR */
+  .sidebar {
     position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 48px;
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(16px);
-    background: rgba(10,10,10,0.85);
+    flex-direction: column;
+    z-index: 100;
+    padding: 0;
   }
 
   .logo {
-    font-family: 'JetBrains Mono', monospace;
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    font-family: 'Unbounded', sans-serif;
     font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.15em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent);
     text-transform: uppercase;
-    color: var(--white);
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .nav {
+    padding: 20px 12px;
+    flex: 1;
+  }
+
+  .nav-section {
+    margin-bottom: 28px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    text-decoration: none;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 14px;
+    color: var(--muted);
+    position: relative;
   }
 
-  .logo-dot {
-    width: 8px; height: 8px;
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+
+  .nav-item.active {
+    background: rgba(232,197,71,0.1);
+    color: var(--accent);
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 20px;
     background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
+    border-radius: 0 2px 2px 0;
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.7); }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--urgent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
   }
 
-  .nav-links {
-    display: flex;
-    gap: 40px;
-    list-style: none;
+  .nav-badge.yellow { background: var(--accent); color: #000; }
+
+  /* Sources list */
+  .sources-list {
+    padding: 12px;
+    border-top: 1px solid var(--border);
   }
 
-  .nav-links a {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
+  .sources-title {
+    font-size: 10px;
+    font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--gray);
-    text-decoration: none;
-    transition: color 0.2s;
+    color: var(--muted);
+    padding: 0 4px;
+    margin-bottom: 10px;
   }
 
-  .nav-links a:hover { color: var(--white); }
-  .nav-links a.active { color: var(--white); }
-
-  .nav-cta {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--black);
-    background: var(--white);
-    padding: 10px 20px;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
-  }
-
-  .nav-cta:hover { background: var(--accent); color: var(--white); }
-
-  /* BURGER */
-  .burger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
-    padding: 4px;
-    background: none;
-    border: none;
-    z-index: 200;
-  }
-  .burger span {
-    display: block; width: 24px; height: 2px;
-    background: var(--white); transition: all 0.3s ease; transform-origin: center;
-  }
-  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-  .mobile-menu {
-    display: none;
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(10,10,10,0.98);
-    z-index: 150;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(20px);
-  }
-  .mobile-menu.open { display: flex; }
-  .mobile-menu a {
-    font-family: 'Libre Baskerville', serif;
-    font-size: clamp(28px, 7vw, 40px);
-    font-weight: 700;
-    color: var(--white);
-    text-decoration: none;
-    padding: 20px 40px;
-    width: 100%;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    transition: color 0.2s;
-  }
-  .mobile-menu a:first-child { border-top: 1px solid var(--border); }
-  .mobile-menu a:hover { color: var(--gold); }
-
-  /* PAGE HEADER */
-  .page-header {
-    padding: 140px 48px 60px;
-    border-bottom: 1px solid var(--border);
+  .source-item {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 24px;
-    background: linear-gradient(180deg, rgba(17,17,17,0.5) 0%, transparent 100%);
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    font-size: 12px;
+    color: var(--muted);
   }
 
-  .page-header-left {}
+  .source-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
 
-  .page-tag {
-    font-family: 'JetBrains Mono', monospace;
+  .source-dot.warn { background: var(--accent); }
+  .source-dot.err { background: var(--urgent); }
+
+  .source-count {
+    margin-left: auto;
     font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 16px;
+    color: var(--muted);
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 60px;
+    z-index: 50;
+  }
+
+  .page-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .search-wrap {
+    flex: 1;
+    max-width: 480px;
+    margin-left: 24px;
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 16px 9px 40px;
+    color: var(--text);
+    font-family: 'Golos Text', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: rgba(232,197,71,0.4);
+  }
+
+  .search-input::placeholder { color: var(--muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 13px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .topbar-actions {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 12px;
   }
 
-  .page-tag::before {
-    content: '';
-    display: inline-block;
-    width: 24px; height: 1px;
-    background: var(--gold);
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Golos Text', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
   }
 
-  .page-title {
-    font-size: clamp(32px, 4vw, 52px);
-    line-height: 1.1;
-    font-weight: 700;
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
   }
 
-  /* STATUS INDICATOR */
-  .status-indicator {
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.15); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover { background: #f5d454; }
+
+  /* CONTENT */
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+    flex: 1;
+  }
+
+  /* FEED */
+  .feed-col {
+    padding: 28px 32px;
+    border-right: 1px solid var(--border);
+  }
+
+  /* FILTERS */
+  .filters {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
   }
 
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--gray);
+  .filter-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: 'Golos Text', sans-serif;
   }
 
-  .status-dot.online { background: var(--green); animation: pulse 2s ease-in-out infinite; }
-  .status-dot.error { background: var(--accent); }
+  .filter-chip:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
 
-  /* MAIN CONTENT */
-  .main {
-    padding: 48px 48px 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 48px;
+  .filter-chip.active {
+    background: rgba(232,197,71,0.12);
+    border-color: rgba(232,197,71,0.4);
+    color: var(--accent);
+  }
+
+  .filter-chip.urgent-chip.active {
+    background: rgba(255,68,68,0.12);
+    border-color: rgba(255,68,68,0.4);
+    color: var(--urgent);
+  }
+
+  .filter-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    margin: 0 4px;
   }
 
   /* STATS ROW */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
+    gap: 12px;
+    margin-bottom: 28px;
   }
 
   .stat-card {
-    background: #0f0f0f;
-    padding: 32px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: rgba(255,255,255,0.12); }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.urgent { color: var(--urgent); }
+  .stat-value.green { color: var(--green); }
+
+  .stat-delta {
+    font-size: 11px;
+    color: var(--green);
+    margin-top: 4px;
+  }
+
+  /* DOCUMENT CARDS */
+  .doc-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .doc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
     position: relative;
     overflow: hidden;
   }
 
-  .stat-card::before {
+  .doc-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--gold);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-    transform-origin: left;
-  }
-
-  .stat-card:hover::before { transform: scaleX(1); }
-
-  .stat-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--gray);
-    margin-bottom: 12px;
-  }
-
-  .stat-value {
-    font-size: 42px;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--gold);
-    margin-bottom: 6px;
-  }
-
-  .stat-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: rgba(107,107,107,0.6);
-    letter-spacing: 0.08em;
-  }
-
-  .stat-skeleton {
-    height: 42px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 2px;
-    animation: shimmer 1.5s infinite;
-    margin-bottom: 6px;
-  }
-
-  @keyframes shimmer {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-  }
-
-  /* CONTROLS */
-  .controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .filters {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .filter-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
     background: transparent;
-    color: var(--gray);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .filter-btn:hover, .filter-btn.active {
-    border-color: var(--white);
-    color: var(--white);
-    background: rgba(255,255,255,0.04);
-  }
-
-  .filter-btn.urgent.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(200,57,43,0.08);
-  }
-
-  .action-btns {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .btn-parse {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 20px;
-    background: var(--accent);
-    color: var(--white);
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-parse:hover { background: var(--accent-light); transform: translateY(-1px); }
-  .btn-parse:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  .btn-refresh {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 20px;
-    background: transparent;
-    color: var(--white);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-refresh:hover { border-color: var(--white); background: rgba(255,255,255,0.04); }
-
-  .spin { animation: spin 1s linear infinite; }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-  /* DOCUMENTS TABLE */
-  .docs-section {}
-
-  .docs-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0 20px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0;
-  }
-
-  .docs-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--gray);
-  }
-
-  .docs-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--gray);
-  }
-
-  /* DOCUMENT CARDS */
-  .doc-list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .doc-card {
-    border-bottom: 1px solid var(--border);
-    padding: 28px 0;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 24px;
-    align-items: start;
     transition: background 0.2s;
-    cursor: default;
   }
 
-  .doc-card:hover { background: rgba(255,255,255,0.015); margin: 0 -48px; padding-left: 48px; padding-right: 48px; }
-
-  .doc-index {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: rgba(107,107,107,0.4);
-    letter-spacing: 0.08em;
-    min-width: 28px;
-    padding-top: 3px;
+  .doc-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-1px);
   }
 
-  .doc-body {}
+  .doc-card:hover::before { background: var(--accent); }
+  .doc-card.urgent-card::before { background: var(--urgent); }
+  .doc-card.urgent-card { border-color: rgba(255,68,68,0.2); }
 
   .doc-meta {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 10px;
-    flex-wrap: wrap;
   }
 
-  .doc-source {
-    font-family: 'JetBrains Mono', monospace;
+  .source-badge {
     font-size: 10px;
-    letter-spacing: 0.1em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid rgba(184,151,42,0.3);
-    padding: 2px 8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
   }
+
+  .source-badge.pravo { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
+  .source-badge.nalog { color: var(--accent); border-color: rgba(232,197,71,0.3); background: rgba(232,197,71,0.08); }
+  .source-badge.cbr { color: var(--blue); border-color: rgba(77,166,255,0.3); background: rgba(77,166,255,0.08); }
+  .source-badge.consultant { color: var(--green); border-color: rgba(61,220,132,0.3); background: rgba(61,220,132,0.08); }
+  .source-badge.rg { color: #fb923c; border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.08); }
 
   .doc-date {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--gray);
-    letter-spacing: 0.06em;
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
   }
 
-  .doc-urgent {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: rgba(200,57,43,0.1);
-    border: 1px solid rgba(200,57,43,0.3);
-    padding: 2px 8px;
-    animation: urgentPulse 2s ease-in-out infinite;
+  .urgent-badge {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--urgent);
+    background: rgba(255,68,68,0.1);
+    border: 1px solid rgba(255,68,68,0.25);
+    padding: 3px 10px;
+    border-radius: 20px;
   }
 
-  @keyframes urgentPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+  .urgent-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--urgent);
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
   }
 
   .doc-title {
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.3;
+    font-family: 'Golos Text', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
     margin-bottom: 8px;
-    color: var(--white);
+    color: var(--text);
   }
 
   .doc-summary {
-    font-size: 14px;
-    line-height: 1.65;
-    color: rgba(245,242,235,0.55);
-    max-width: 720px;
-  }
-
-  .doc-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 12px;
-  }
-
-  .doc-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    color: rgba(184,151,42,0.7);
-    border: 1px solid rgba(184,151,42,0.2);
-    padding: 2px 8px;
-  }
-
-  .doc-link {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--gray);
-    text-decoration: none;
-    border: 1px solid var(--border);
-    padding: 8px 14px;
-    transition: all 0.2s;
-    white-space: nowrap;
-    align-self: flex-start;
-  }
-
-  .doc-link:hover { border-color: var(--white); color: var(--white); }
-
-  /* SKELETON CARD */
-  .doc-skeleton {
-    border-bottom: 1px solid var(--border);
-    padding: 28px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .sk-line {
-    height: 12px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 2px;
-    animation: shimmer 1.5s infinite;
-  }
-
-  .sk-title { height: 20px; width: 70%; }
-  .sk-summary { width: 90%; }
-  .sk-summary2 { width: 60%; }
-
-  /* EMPTY STATE */
-  .empty-state {
-    padding: 80px 0;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .empty-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
-    opacity: 0.3;
-  }
-
-  .empty-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: rgba(245,242,235,0.4);
-  }
-
-  .empty-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: rgba(107,107,107,0.5);
-    letter-spacing: 0.08em;
-  }
-
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    z-index: 1000;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    padding: 16px 24px;
-    border: 1px solid var(--border);
-    backdrop-filter: blur(16px);
-    background: rgba(20,20,20,0.95);
-    color: var(--white);
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s ease;
-    max-width: 340px;
-  }
-
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { border-color: rgba(76,175,125,0.5); }
-  .toast.error { border-color: rgba(200,57,43,0.5); }
-
-  /* SOURCES BREAKDOWN */
-  .sources-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  .source-stat {
-    background: #0a0a0a;
-    padding: 24px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .source-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--gray);
-  }
-
-  .source-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--white);
-  }
-
-  /* ── FILTER BAR (новый) ── */
-  .filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-
-  .filter-bar .filter-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    color: var(--gray);
-    text-transform: uppercase;
-    white-space: nowrap;
-    margin-right: 4px;
-  }
-
-  .filter-bar .select-wrapper {
-    position: relative;
-  }
-
-  .filter-bar .select-wrapper::after {
-    content: '▾';
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray);
-    font-size: 10px;
-    pointer-events: none;
-  }
-
-  .filter-bar select {
-    appearance: none;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    color: var(--white);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 8px 32px 8px 14px;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.15s, color 0.15s;
-    min-width: 160px;
-  }
-
-  .filter-bar select option {
-    background: #1a1a1a;
-    color: var(--white);
-  }
-
-  .filter-bar select:hover { border-color: rgba(200,190,170,0.4); }
-  .filter-bar select:focus { border-color: var(--accent); }
-
-  .sort-toggle {
-    display: flex;
-    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  .sort-btn {
-    background: rgba(255,255,255,0.02);
-    border: none;
-    color: var(--gray);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 8px 16px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+  .doc-footer {
     display: flex;
     align-items: center;
-    gap: 6px;
-    white-space: nowrap;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
   }
 
-  .sort-btn + .sort-btn { border-left: 1px solid var(--border); }
-  .sort-btn:hover { background: rgba(255,255,255,0.05); color: var(--white); }
-
-  .sort-btn.active {
-    background: rgba(200,57,43,0.08);
-    color: var(--accent);
-    box-shadow: inset 0 0 0 1px rgba(200,57,43,0.25);
+  .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
   }
 
-  .filter-bar .bar-divider {
-    width: 1px;
-    height: 24px;
-    background: var(--border);
-    margin: 0 4px;
-  }
-
-  .filter-bar .bar-actions {
+  .doc-actions {
     margin-left: auto;
     display: flex;
     gap: 8px;
-    align-items: center;
   }
 
-  .filter-bar .filter-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* site dropdown */
-  .site-dropdown-btn {
-    appearance: none;
-    background: rgba(255,255,255,0.03);
+  .icon-btn {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    background: var(--surface2);
     border: 1px solid var(--border);
-    color: var(--white);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 8px 14px;
-    cursor: pointer;
-    min-width: 160px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    transition: border-color 0.15s;
-  }
-  .site-dropdown-btn:hover { border-color: rgba(200,190,170,0.4); }
-
-  .site-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    z-index: 200;
-    background: #161616;
-    border: 1px solid var(--border);
-    min-width: 200px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  }
-
-  .site-option {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--gray);
-    padding: 10px 16px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .site-option:hover { background: rgba(255,255,255,0.04); color: var(--white); }
-  .site-option.selected { color: var(--accent); }
-  .site-option.selected::after { content: "✓"; font-size: 11px; }
-
-  /* pills */
-  .active-filters {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-    min-height: 24px;
-  }
-
-  .pill {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    color: var(--gray);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    animation: fadeIn 0.2s ease;
-  }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-
-  .pill .pill-x {
-    color: var(--gray);
-    cursor: pointer;
-    font-size: 11px;
-    line-height: 1;
-    transition: color 0.1s;
-  }
-
-  .pill .pill-x:hover { color: var(--accent); }
-
-  /* LOAD MORE */
-  .load-more-wrap {
-    display: flex;
     justify-content: center;
-    padding: 40px 0;
-  }
-
-  .btn-load-more {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 14px 32px;
-    background: transparent;
-    color: var(--gray);
-    border: 1px solid var(--border);
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 13px;
+    color: var(--muted);
+    transition: all 0.15s;
   }
 
-  .btn-load-more:hover { color: var(--white); border-color: var(--white); }
-  .btn-load-more:disabled { opacity: 0.4; cursor: not-allowed; }
+  .icon-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
 
-  /* FOOTER */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 40px 48px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #050505;
-  }
-
-  .footer-logo {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--gray);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .footer-copy {
-    font-family: 'JetBrains Mono', monospace;
+  .eff-date {
     font-size: 11px;
-    color: rgba(107,107,107,0.5);
-    letter-spacing: 0.08em;
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 32px;
-  }
-
-  .footer-links a {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--gray);
-    text-decoration: none;
-    letter-spacing: 0.08em;
-    transition: color 0.2s;
-  }
-
-  .footer-links a:hover { color: var(--white); }
-
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    nav { padding: 20px 24px; }
-    .nav-links, .nav-cta { display: none; }
-    .burger { display: flex; }
-    .page-header { padding: 120px 24px 48px; }
-    .main { padding: 32px 24px 60px; }
-    .stats-row { grid-template-columns: 1fr 1fr; }
-    .sources-row { grid-template-columns: 1fr; }
-    .doc-card { grid-template-columns: 1fr; gap: 12px; }
-    .doc-card:hover { margin: 0; padding-left: 0; padding-right: 0; }
-    .doc-index { display: none; }
-    footer { flex-direction: column; gap: 20px; text-align: center; padding: 32px 24px; }
-    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
-  }
-
-  @media (max-width: 600px) {
-    .stats-row { grid-template-columns: 1fr; }
-    .controls { flex-direction: column; align-items: flex-start; }
-    .action-btns { width: 100%; }
-    .btn-parse, .btn-refresh { flex: 1; justify-content: center; }
-  }
-
-  
-  /* ── SOURCES PANEL ─────────────────────────────────── */
-  .sources-panel {
-    border: 1px solid var(--border);
-    background: #080808;
-    margin-bottom: 0;
-  }
-  .sources-panel-header {
+    color: var(--muted);
+    margin-left: 4px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 18px 28px;
-    border-bottom: 1px solid var(--border);
+    gap: 4px;
   }
-  .sources-panel-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--white);
-  }
-  .sources-panel-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--gray);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .sources-panel-sub::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-    animation: pulse 2s ease-in-out infinite;
-  }
-  .sources-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--border);
-  }
-  .source-card {
-    background: #0a0a0a;
-    padding: 22px 24px;
-    text-decoration: none;
-    color: var(--white);
-    transition: background 0.2s;
+
+  .eff-date.soon { color: var(--accent); }
+
+  /* RIGHT PANEL */
+  .right-col {
+    padding: 28px 24px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    cursor: pointer;
+    gap: 24px;
   }
-  .source-card:hover { background: #0f0f0f; }
-  .source-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .source-icon {  line-height: 1; }
-  .source-count-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--gold);
-    line-height: 1;
-  }
-  .source-card-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--white);
-    margin-top: 4px;
-  }
-  .source-card-desc {
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    line-height: 1.5;
-    color: rgba(245,242,235,0.45);
-  }
-  .source-card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
-  }
-  .src-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.06em;
-    padding: 3px 7px;
+
+  .panel {
+    background: var(--surface);
     border: 1px solid var(--border);
-    color: var(--gray);
-  }
-  @media (max-width: 900px) { .sources-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 500px) { .sources-grid { grid-template-columns: 1fr; } }
-
-  /* ── ЧИТАЕМОСТЬ: ГЛОБАЛЬНЫЕ ПЕРЕОПРЕДЕЛЕНИЯ ── */
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-      font-size: 15px;
-      line-height: 1.7;
-      letter-spacing: 0 !important;
-    }
-    h1, h2, h3, h4 {
-      font-family: 'Libre Baskerville', Georgia, serif !important;
-      letter-spacing: -0.01em;
-    }
-    /* Только метки, теги, кнопки — моноширинный */
-    .form-tag, .step-tag, .section-num, .stat-label, .doc-source,
-    .filter-btn, .tag-item, .badge, .nav-link, .logo,
-    code, .code-label, .mono {
-      font-family: 'JetBrains Mono', monospace !important;
-    }
-    /* Весь основной текст — Inter */
-    p, li, .step-desc, .stat-desc, .doc-summary, .doc-title,
-    .form-sub, .left-meta, .field label, input, textarea, select,
-    .notif-desc, .ind-desc, .step-text, .nav-links a {
-      font-family: 'Inter', system-ui, sans-serif !important;
-      letter-spacing: 0.01em;
-    }
-    /* Увеличенные размеры для читаемости */
-    .stat-label { font-size: 12px !important; letter-spacing: 0.08em !important; }
-    .doc-source { font-size: 11px !important; }
-    .filter-btn { font-size: 12px !important; }
-    input, .field input { font-size: 14px !important; letter-spacing: 0 !important; }
-    .nav-links a { font-size: 13px !important; letter-spacing: 0.06em !important; }
-    .form-sub { font-size: 15px !important; font-family: 'Inter', sans-serif !important; letter-spacing: 0 !important; }
-    /* stat value крупнее */
-    .stat-value { font-size: clamp(36px, 5vw, 56px) !important; }
-    /* doc title читаемость */
-    .doc-title { font-size: 16px !important; font-weight: 600 !important; line-height: 1.4 !important; }
-    .doc-summary { font-size: 14px !important; line-height: 1.7 !important; color: rgba(245,242,235,0.65) !important; }
-    /* source bar */
-    .source-name { font-size: 13px !important; }
-    .source-count { font-size: 22px !important; }
-
-  
-  /* ── МАСШТАБ 125% ── */
-  html {
-    font-size: 150%;
+    border-radius: 14px;
+    overflow: hidden;
   }
 
-  /* ── ПЕРЕХОДЫ МЕЖДУ СТРАНИЦАМИ ── */
-  body { opacity: 1; transition: opacity 0.25s ease; }
-  body.page-exit { opacity: 0; }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
+  .panel-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .panel-link {
+    font-size: 11px;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* CALENDAR */
+  .calendar {
+    padding: 16px;
+  }
+
+  .cal-month {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .cal-day-name {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    padding: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .cal-day:hover { background: var(--surface2); color: var(--text); }
+  .cal-day.today { background: rgba(232,197,71,0.15); color: var(--accent); font-weight: 600; }
+  .cal-day.has-event::after {
+    content: '';
+    position: absolute;
+    bottom: 3px; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .cal-day.has-urgent::after { background: var(--urgent); }
+  .cal-day.empty { pointer-events: none; }
+
+  /* UPCOMING */
+  .upcoming-list { padding: 8px; }
+
+  .upcoming-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .upcoming-item:hover { background: var(--surface2); }
+
+  .upcoming-date-badge {
+    min-width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .upcoming-date-badge .day {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .upcoming-date-badge .month {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .upcoming-info { flex: 1; min-width: 0; }
+
+  .upcoming-title {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+  }
+
+  .upcoming-source {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* INDUSTRY FILTER */
+  .industry-grid {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .industry-btn {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    text-align: left;
+    transition: all 0.15s;
+    font-family: 'Golos Text', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .industry-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .industry-btn.active {
+    background: rgba(232,197,71,0.1);
+    border-color: rgba(232,197,71,0.35);
+    color: var(--accent);
+  }
+
+  .industry-icon { font-size: 14px; }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .page-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: 'Golos Text', sans-serif;
+  }
+
+  .page-btn:hover { background: var(--surface2); color: var(--text); }
+  .page-btn.active { background: var(--accent); color: #000; font-weight: 700; border-color: var(--accent); }
+
+  /* Fade-in animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .doc-card {
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .doc-card:nth-child(1) { animation-delay: 0.05s; }
+  .doc-card:nth-child(2) { animation-delay: 0.1s; }
+  .doc-card:nth-child(3) { animation-delay: 0.15s; }
+  .doc-card:nth-child(4) { animation-delay: 0.2s; }
+  .doc-card:nth-child(5) { animation-delay: 0.25s; }
+  .doc-card:nth-child(6) { animation-delay: 0.3s; }
+
+  /* Loading skeleton */
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface2) 25%, rgba(255,255,255,0.04) 50%, var(--surface2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="index.html" class="logo">
-    <span class="logo-dot"></span>
-    ComplianceRadar
-  </a>
-  <ul class="nav-links">
-    <li><a href="product.html">Продукт</a></li>
-    <li><a href="industries.html">Отрасли</a></li>
-    <li><a href="index.html#pricing">Тарифы</a></li>
-    <li><a href="monitoring.html" class="active">Мониторинг</a></li>
-    <li><a href="contacts.html">Контакты</a></li>
-  </ul>
-  <div id="userPanel" style="display:none;font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:.08em;display:flex;align-items:center;gap:16px;"><span id="userName" style="color:var(--gray)"></span><button onclick="logout()" style="background:transparent;border:1px solid var(--border);color:var(--gray);font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:.08em;padding:8px 14px;cursor:pointer;transition:all .2s" onmouseover="this.style.color='var(--white)';this.style.borderColor='var(--white)'" onmouseout="this.style.color='var(--gray)';this.style.borderColor='var(--border)'">Выйти</button></div>
-  <button class="burger" id="burger" aria-label="Меню">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-  <a href="product.html">Продукт</a>
-  <a href="industries.html">Отрасли</a>
-  <a href="index.html#pricing">Тарифы</a>
-  <a href="monitoring.html">Мониторинг</a>
-  <a href="contacts.html">Контакты</a>
-</div>
-
-<!-- PAGE HEADER -->
-<div class="page-header">
-  <div class="page-header-left">
-    <div class="page-tag">Live</div>
-    <h1 class="page-title">Лента мониторинга</h1>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">⬡ ComplianceRadar</div>
+    <div class="logo-sub">Мониторинг законодательства</div>
   </div>
-  <div class="status-indicator">
-    <div class="status-dot" id="statusDot"></div>
-    <span id="statusText" style="color:var(--gray);">Подключение...</span>
+
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-label">Основное</div>
+      <div class="nav-item active">
+        <span class="nav-icon">◈</span> Лента документов
+        <span class="nav-badge yellow">+14</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">⬦</span> Срочные
+        <span class="nav-badge">7</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">◎</span> Календарь
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">◻</span> Избранное
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Отрасли</div>
+      <div class="nav-item">
+        <span class="nav-icon">💻</span> IT и технологии
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">🏦</span> Банки и финансы
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">🏪</span> Ритейл и торговля
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">🏗</span> Строительство
+      </div>
+    </div>
+  </nav>
+
+  <div class="sources-list">
+    <div class="sources-title">Источники</div>
+    <div class="source-item">
+      <div class="source-dot"></div>
+      pravo.gov.ru
+      <span class="source-count">48</span>
+    </div>
+    <div class="source-item">
+      <div class="source-dot"></div>
+      cbr.ru
+      <span class="source-count">21</span>
+    </div>
+    <div class="source-item">
+      <div class="source-dot"></div>
+      nalog.gov.ru
+      <span class="source-count">30</span>
+    </div>
+    <div class="source-item">
+      <div class="source-dot"></div>
+      consultant.ru
+      <span class="source-count">24</span>
+    </div>
+    <div class="source-item">
+      <div class="source-dot warn"></div>
+      rg.ru
+      <span class="source-count">9</span>
+    </div>
+    <div class="source-item">
+      <div class="source-dot err"></div>
+      mintrud.gov.ru
+      <span class="source-count">0</span>
+    </div>
   </div>
-</div>
+</aside>
 
 <!-- MAIN -->
-<div class="main">
-
-  <!-- STATS -->
-  <div class="stats-row" id="statsRow">
-    <div class="stat-card">
-      <div class="stat-label">Всего документов</div>
-      <div class="stat-skeleton" id="skTotal"></div>
-      <div class="stat-value" id="statTotal" style="display:none"></div>
-      <div class="stat-sub">в базе данных</div>
+<main class="main">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="page-title">Лента документов</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Поиск по заголовку, тексту, номеру закона...">
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Обработано Claude</div>
-      <div class="stat-skeleton" id="skProcessed"></div>
-      <div class="stat-value" id="statProcessed" style="display:none"></div>
-      <div class="stat-sub">проанализировано</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost">⚙ Настройки</button>
+      <button class="btn btn-primary">＋ Подписка</button>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Срочных</div>
-      <div class="stat-skeleton" id="skUrgent"></div>
-      <div class="stat-value" id="statUrgent" style="display:none" style="color:var(--accent)"></div>
-      <div class="stat-sub">вступают в силу &lt;30 дней</div>
+  </header>
+
+  <div class="content">
+    <!-- FEED -->
+    <div class="feed-col">
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Всего документов</div>
+          <div class="stat-value accent">132</div>
+          <div class="stat-delta">↑ +14 сегодня</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Срочных</div>
+          <div class="stat-value urgent">7</div>
+          <div class="stat-delta" style="color: var(--urgent)">↑ +3 за неделю</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Проанализировано</div>
+          <div class="stat-value green">90</div>
+          <div class="stat-delta">68% от всех</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Вступают в марте</div>
+          <div class="stat-value" style="color: var(--blue)">12</div>
+          <div class="stat-delta" style="color: var(--muted)">ближайший — 2 мар</div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters">
+        <button class="filter-chip active">Все</button>
+        <button class="filter-chip urgent-chip">🔴 Срочные</button>
+        <div class="filter-sep"></div>
+        <button class="filter-chip">pravo.gov.ru</button>
+        <button class="filter-chip">nalog.gov.ru</button>
+        <button class="filter-chip">cbr.ru</button>
+        <button class="filter-chip">consultant.ru</button>
+        <div class="filter-sep"></div>
+        <button class="filter-chip">За неделю</button>
+        <button class="filter-chip">За месяц</button>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div class="doc-list">
+
+        <!-- Card 1 — URGENT -->
+        <div class="doc-card urgent-card">
+          <div class="doc-meta">
+            <span class="source-badge nalog">nalog.gov.ru</span>
+            <span class="doc-date">25.02.2026</span>
+            <div class="urgent-badge"><div class="urgent-dot"></div>СРОЧНО</div>
+          </div>
+          <div class="doc-title">2 марта наступает единый срок уплаты налогов на имущество организаций за 2025 год</div>
+          <div class="doc-summary">Организации обязаны уплатить налог на имущество за 2025 год не позднее 2 марта 2026 года. За просрочку начисляются пени. Рекомендуется проверить корректность расчёта налоговой базы и сформировать платёжное поручение заблаговременно.</div>
+          <div class="doc-footer">
+            <span class="tag">налоги</span>
+            <span class="tag">имущество</span>
+            <span class="tag">штраф</span>
+            <span class="eff-date soon">📅 2 марта 2026</span>
+            <div class="doc-actions">
+              <div class="icon-btn" title="Открыть">↗</div>
+              <div class="icon-btn" title="Сохранить">⬡</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="doc-card">
+          <div class="doc-meta">
+            <span class="source-badge pravo">pravo.gov.ru</span>
+            <span class="doc-date">24.02.2026</span>
+          </div>
+          <div class="doc-title">Постановление Правительства РФ № 234 об изменении порядка лицензирования IT-деятельности</div>
+          <div class="doc-summary">Вносятся изменения в перечень лицензируемых видов деятельности в сфере информационных технологий. Компании, разрабатывающие ПО для критической инфраструктуры, обязаны пройти переаттестацию до 1 июля 2026 года.</div>
+          <div class="doc-footer">
+            <span class="tag">IT</span>
+            <span class="tag">лицензирование</span>
+            <span class="tag">КИИ</span>
+            <span class="eff-date">📅 1 июля 2026</span>
+            <div class="doc-actions">
+              <div class="icon-btn">↗</div>
+              <div class="icon-btn">⬡</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 — URGENT -->
+        <div class="doc-card urgent-card">
+          <div class="doc-meta">
+            <span class="source-badge cbr">cbr.ru</span>
+            <span class="doc-date">24.02.2026</span>
+            <div class="urgent-badge"><div class="urgent-dot"></div>СРОЧНО</div>
+          </div>
+          <div class="doc-title">Банк России повысил ключевую ставку до 22% годовых</div>
+          <div class="doc-summary">Совет директоров Банка России принял решение повысить ключевую ставку на 100 б.п. — до 22% годовых. Решение вступает в силу немедленно. Влияет на стоимость кредитования, расчёт неустоек по договорам и нормативы резервирования банков.</div>
+          <div class="doc-footer">
+            <span class="tag">ключевая ставка</span>
+            <span class="tag">банки</span>
+            <span class="tag">кредиты</span>
+            <span class="eff-date soon">📅 Сразу</span>
+            <div class="doc-actions">
+              <div class="icon-btn">↗</div>
+              <div class="icon-btn">⬡</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="doc-card">
+          <div class="doc-meta">
+            <span class="source-badge consultant">consultant.ru</span>
+            <span class="doc-date">23.02.2026</span>
+          </div>
+          <div class="doc-title">Письма ФНС России, обязательные для применения налоговыми органами — февраль 2026</div>
+          <div class="doc-summary">Опубликован перечень писем ФНС с разъяснениями по применению НДС, НДФЛ и налога на прибыль. Письма обязательны для применения налоговыми органами при проведении проверок в I квартале 2026 года.</div>
+          <div class="doc-footer">
+            <span class="tag">ФНС</span>
+            <span class="tag">НДС</span>
+            <span class="tag">НДФЛ</span>
+            <div class="doc-actions">
+              <div class="icon-btn">↗</div>
+              <div class="icon-btn">⬡</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="doc-card">
+          <div class="doc-meta">
+            <span class="source-badge rg">rg.ru</span>
+            <span class="doc-date">22.02.2026</span>
+          </div>
+          <div class="doc-title">Федеральный закон № 57-ФЗ об усилении требований к защите персональных данных</div>
+          <div class="doc-summary">Вносятся поправки в 152-ФЗ. Операторы персональных данных обязаны уведомлять Роскомнадзор об утечках в течение 24 часов вместо 72. Штрафы за нарушения увеличены до 3% от годовой выручки.</div>
+          <div class="doc-footer">
+            <span class="tag">152-ФЗ</span>
+            <span class="tag">персданные</span>
+            <span class="tag">штраф</span>
+            <span class="eff-date">📅 1 сентября 2026</span>
+            <div class="doc-actions">
+              <div class="icon-btn">↗</div>
+              <div class="icon-btn">⬡</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="doc-card">
+          <div class="doc-meta">
+            <span class="source-badge pravo">pravo.gov.ru</span>
+            <span class="doc-date">21.02.2026</span>
+          </div>
+          <div class="doc-title">Об изменениях в сфере НДФЛ, страховых взносов, НДС и спецрежимов — обзор ФНС</div>
+          <div class="doc-summary">ФНС опубликовала сводный обзор изменений налогового законодательства, вступивших в силу с 1 января 2026 года. Рассмотрены новые ставки НДФЛ для физлиц с доходами свыше 2,4 млн руб., изменения по УСН и патентной системе.</div>
+          <div class="doc-footer">
+            <span class="tag">НДФЛ</span>
+            <span class="tag">УСН</span>
+            <span class="tag">страховые взносы</span>
+            <div class="doc-actions">
+              <div class="icon-btn">↗</div>
+              <div class="icon-btn">⬡</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <button class="page-btn">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <span style="color: var(--muted); font-size: 13px; padding: 0 4px;">…</span>
+        <button class="page-btn">7</button>
+        <button class="page-btn">›</button>
+      </div>
+
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Подписчиков</div>
-      <div class="stat-skeleton" id="skSubs"></div>
-      <div class="stat-value" id="statSubs" style="display:none"></div>
-      <div class="stat-sub">активных</div>
-    </div>
-  </div>
 
-  <!-- SOURCES PANEL -->
-  <div class="sources-panel">
-    <div class="sources-panel-header">
-      <span class="sources-panel-title">Источники мониторинга</span>
-      <span class="sources-panel-sub">Обновляется каждые 2 часа</span>
-    </div>
-    <div class="sources-grid">
+    <!-- RIGHT PANEL -->
+    <div class="right-col">
 
-      <a href="https://publication.pravo.gov.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3v18M3 9h18M5 6l14 12M19 6L5 18"/></svg></div>
-          <div class="source-count-badge" id="srcPravo">—</div>
+      <!-- INDUSTRY FILTER -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Отрасль</div>
+          <a class="panel-link">Сбросить</a>
         </div>
-        <div class="source-card-name">pravo.gov.ru</div>
-        <div class="source-card-desc">Федеральные законы, указы Президента, постановления Правительства</div>
-        <div class="source-card-tags">
-          <span class="src-tag">Указы Президента</span>
-          <span class="src-tag">Пост. Правительства</span>
-          <span class="src-tag">ФЗ</span>
+        <div class="industry-grid">
+          <button class="industry-btn active"><span class="industry-icon">💻</span>IT</button>
+          <button class="industry-btn"><span class="industry-icon">🏦</span>Банки</button>
+          <button class="industry-btn"><span class="industry-icon">🏪</span>Ритейл</button>
+          <button class="industry-btn"><span class="industry-icon">🏗</span>Строительство</button>
+          <button class="industry-btn"><span class="industry-icon">🏭</span>Производство</button>
+          <button class="industry-btn"><span class="industry-icon">🏥</span>Медицина</button>
+          <button class="industry-btn"><span class="industry-icon">📚</span>Образование</button>
+          <button class="industry-btn"><span class="industry-icon">🌐</span>Все</button>
         </div>
-      </a>
+      </div>
 
-      <a href="https://www.nalog.gov.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>
-          <div class="source-count-badge" id="srcNalog">—</div>
+      <!-- CALENDAR -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Март 2026</div>
+          <a class="panel-link">◂ ▸</a>
         </div>
-        <div class="source-card-name">nalog.gov.ru</div>
-        <div class="source-card-desc">Приказы, письма, разъяснения и форматы отчётности ФНС России</div>
-        <div class="source-card-tags">
-          <span class="src-tag">Приказы ФНС</span>
-          <span class="src-tag">Письма</span>
-          <span class="src-tag">Отчётность</span>
-        </div>
-      </a>
-
-      <a href="https://www.cbr.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/></svg></div>
-          <div class="source-count-badge" id="srcCbr">—</div>
-        </div>
-        <div class="source-card-name">cbr.ru</div>
-        <div class="source-card-desc">Нормативные акты, пресс-релизы и решения Банка России</div>
-        <div class="source-card-tags">
-          <span class="src-tag">Нормативы</span>
-          <span class="src-tag">Ставка ЦБ</span>
-          <span class="src-tag">Предписания</span>
-        </div>
-      </a>
-
-      <a href="https://rg.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M4 22V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16l-4-2-4 2-4-2-4 2z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></div>
-          <div class="source-count-badge">RSS</div>
-        </div>
-        <div class="source-card-name">rg.ru</div>
-        <div class="source-card-desc">Российская Газета — официальный публикатор законов РФ</div>
-        <div class="source-card-tags">
-          <span class="src-tag">Законы РФ</span>
-          <span class="src-tag">Официальный</span>
-        </div>
-      </a>
-
-      <a href="https://www.consultant.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg></div>
-          <div class="source-count-badge">RSS</div>
-        </div>
-        <div class="source-card-name">consultant.ru</div>
-        <div class="source-card-desc">КонсультантПлюс — горячие документы законодательства</div>
-        <div class="source-card-tags">
-          <span class="src-tag">Горячие документы</span>
-          <span class="src-tag">НПА</span>
-        </div>
-      </a>
-
-      <a href="https://minfin.gov.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0"/><path d="M6 12h.01M18 12h.01"/></svg></div>
-          <div class="source-count-badge">RSS</div>
-        </div>
-        <div class="source-card-name">minfin.gov.ru</div>
-        <div class="source-card-desc">Стандарты ФСБУ, письма по бухучёту, налоговая политика</div>
-        <div class="source-card-tags">
-          <span class="src-tag">ФСБУ</span>
-          <span class="src-tag">Бухучёт</span>
-          <span class="src-tag">Налоги</span>
-        </div>
-      </a>
-
-      <a href="https://mintrud.gov.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M2 20h20M12 2v4M4.93 7.93A9.97 9.97 0 0 0 2 14h20a9.97 9.97 0 0 0-2.93-6.07"/><path d="M7 14v-4a5 5 0 0 1 10 0v4"/></svg></div>
-          <div class="source-count-badge">RSS</div>
-        </div>
-        <div class="source-card-name">mintrud.gov.ru</div>
-        <div class="source-card-desc">Минтруд России — трудовое законодательство, охрана труда</div>
-        <div class="source-card-tags">
-          <span class="src-tag">ТК РФ</span>
-          <span class="src-tag">Охрана труда</span>
-        </div>
-      </a>
-
-      <a href="https://rospotrebnadzor.ru" target="_blank" class="source-card">
-        <div class="source-card-top">
-          <div class="source-icon"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M6 18l6-12 6 12"/><path d="M9 12h6"/></svg></div>
-          <div class="source-count-badge">RSS</div>
-        </div>
-        <div class="source-card-name">rospotrebnadzor.ru</div>
-        <div class="source-card-desc">Роспотребнадзор — санитарные нормы, защита прав потребителей</div>
-        <div class="source-card-tags">
-          <span class="src-tag">СанПиН</span>
-          <span class="src-tag">Потребители</span>
-        </div>
-      </a>
-
-    </div>
-  </div>
-
-  <!-- FILTER BAR -->
-  <div>
-    <div class="filter-bar">
-
-      <!-- Сайт (мультивыбор) -->
-      <div class="filter-group" style="position:relative;">
-        <span class="filter-label">Сайт</span>
-        <div class="select-wrapper" id="siteDropdownWrap">
-          <button class="site-dropdown-btn" id="siteDropdownBtn" onclick="toggleSiteDropdown(event)">
-            <span id="siteDropdownLabel">Все сайты</span>
-            <span style="margin-left:8px;font-size:10px;color:var(--gray);">▾</span>
-          </button>
-          <div class="site-dropdown-menu" id="siteDropdownMenu" style="display:none;">
-            <div class="site-option" onclick="toggleSite('pravo','PRAVO.GOV.RU')">PRAVO.GOV.RU</div>
-            <div class="site-option" onclick="toggleSite('nalog','NALOG.GOV.RU')">NALOG.GOV.RU</div>
-            <div class="site-option" onclick="toggleSite('cbr','CBR.RU')">CBR.RU</div>
-            <div class="site-option" onclick="toggleSite('consultant','CONSULTANT.RU')">CONSULTANT.RU</div>
-            <div class="site-option" onclick="toggleSite('rg','RG.RU')">RG.RU</div>
-            <div class="site-option" onclick="toggleSite('my','Мои')">Мои</div>
-            <div class="site-option" onclick="toggleSite('urgent','Срочные')">Срочные</div>
+        <div class="calendar">
+          <div class="cal-grid">
+            <div class="cal-day-name">Пн</div>
+            <div class="cal-day-name">Вт</div>
+            <div class="cal-day-name">Ср</div>
+            <div class="cal-day-name">Чт</div>
+            <div class="cal-day-name">Пт</div>
+            <div class="cal-day-name">Сб</div>
+            <div class="cal-day-name">Вс</div>
+            <!-- March 2026 starts on Sunday -->
+            <div class="cal-day empty"></div>
+            <div class="cal-day empty"></div>
+            <div class="cal-day empty"></div>
+            <div class="cal-day empty"></div>
+            <div class="cal-day empty"></div>
+            <div class="cal-day empty"></div>
+            <div class="cal-day has-event">1</div>
+            <div class="cal-day has-urgent">2</div>
+            <div class="cal-day">3</div>
+            <div class="cal-day">4</div>
+            <div class="cal-day has-event">5</div>
+            <div class="cal-day">6</div>
+            <div class="cal-day">7</div>
+            <div class="cal-day">8</div>
+            <div class="cal-day">9</div>
+            <div class="cal-day has-event">10</div>
+            <div class="cal-day">11</div>
+            <div class="cal-day">12</div>
+            <div class="cal-day">13</div>
+            <div class="cal-day">14</div>
+            <div class="cal-day has-event">15</div>
+            <div class="cal-day">16</div>
+            <div class="cal-day today">17</div>
+            <div class="cal-day">18</div>
+            <div class="cal-day has-event">19</div>
+            <div class="cal-day">20</div>
+            <div class="cal-day">21</div>
+            <div class="cal-day">22</div>
+            <div class="cal-day">23</div>
+            <div class="cal-day">24</div>
+            <div class="cal-day">25</div>
+            <div class="cal-day">26</div>
+            <div class="cal-day has-event">27</div>
+            <div class="cal-day">28</div>
+            <div class="cal-day">29</div>
+            <div class="cal-day">30</div>
+            <div class="cal-day has-event">31</div>
           </div>
         </div>
       </div>
 
-      <div class="bar-divider"></div>
-
-      <!-- Порядок -->
-      <div class="filter-group">
-        <span class="filter-label">Порядок</span>
-        <div class="sort-toggle">
-          <button class="sort-btn active" id="btnNew" onclick="setSortOrder('new')">
-            <span>↑</span> Новые
-          </button>
-          <button class="sort-btn" id="btnOld" onclick="setSortOrder('old')">
-            <span>↓</span> Старые
-          </button>
+      <!-- UPCOMING -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Вступают в силу</div>
+          <a class="panel-link">Все →</a>
+        </div>
+        <div class="upcoming-list">
+          <div class="upcoming-item">
+            <div class="upcoming-date-badge" style="background: rgba(255,68,68,0.1);">
+              <div class="day" style="color: var(--urgent)">02</div>
+              <div class="month">мар</div>
+            </div>
+            <div class="upcoming-info">
+              <div class="upcoming-title">Срок уплаты налога на имущество</div>
+              <div class="upcoming-source">nalog.gov.ru • налоги</div>
+            </div>
+          </div>
+          <div class="upcoming-item">
+            <div class="upcoming-date-badge">
+              <div class="day">10</div>
+              <div class="month">мар</div>
+            </div>
+            <div class="upcoming-info">
+              <div class="upcoming-title">Новые нормативы резервирования ЦБ</div>
+              <div class="upcoming-source">cbr.ru • банки</div>
+            </div>
+          </div>
+          <div class="upcoming-item">
+            <div class="upcoming-date-badge">
+              <div class="day">15</div>
+              <div class="month">мар</div>
+            </div>
+            <div class="upcoming-info">
+              <div class="upcoming-title">Отчётность по форме 6-НДФЛ за 2025</div>
+              <div class="upcoming-source">nalog.gov.ru • НДФЛ</div>
+            </div>
+          </div>
+          <div class="upcoming-item">
+            <div class="upcoming-date-badge">
+              <div class="day">01</div>
+              <div class="month">апр</div>
+            </div>
+            <div class="upcoming-info">
+              <div class="upcoming-title">Изменения порядка лицензирования IT</div>
+              <div class="upcoming-source">pravo.gov.ru • IT</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Правые кнопки -->
-      <div class="bar-actions">
-        <button class="btn-refresh" onclick="loadAll()" id="refreshBtn">
-          <span id="refreshIcon">↻</span> Обновить
-        </button>
-        <button class="btn-parse" onclick="triggerParse()" id="parseBtn">
-          ▶ Запустить парсинг
-        </button>
-      </div>
-
-    </div>
-
-    <!-- Активные фильтры (pills) -->
-    <div class="active-filters" id="pills"></div>
-  </div>
-
-  <!-- DOCUMENTS -->
-  <div class="docs-section">
-    <div class="docs-header">
-      <span class="docs-title">Нормативные документы</span>
-      <span class="docs-count" id="docsCount">загрузка...</span>
-    </div>
-    <div class="doc-list" id="docList">
-      <!-- skeletons -->
-      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-      <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-    </div>
-    <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
-      <button class="btn-load-more" id="loadMoreBtn" onclick="loadMore()">Загрузить ещё</button>
     </div>
   </div>
-
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">
-    <span class="logo-dot"></span>
-    ComplianceRadar · 2026
-  </div>
-  <div class="footer-links">
-    <a href="#">Политика конфиденциальности</a>
-    <a href="#">Договор оферты</a>
-    <a href="contacts.html">Контакты</a>
-  </div>
-  <div class="footer-copy">© 2026 ComplianceRadar. Все права защищены.</div>
-</footer>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+</main>
 
 <script>
-  const API = 'https://fnsbot-production.up.railway.app';
-  const CR_TOKEN = localStorage.getItem('cr_token');
-  const CR_USER = JSON.parse(localStorage.getItem('cr_user') || 'null');
-  let showPersonal = false; // включается только при выборе «Мои» в фильтре
-  let currentFilter = 'all';
-  let currentOffset = 0;
-  const PAGE_SIZE = 20;
-  let totalDocs = 0;
-
-  // ── UTILS ──────────────────────────────────────────────────────
-
-  function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show ' + type;
-    setTimeout(() => { t.className = 'toast'; }, 4000);
-  }
-
-  function formatDate(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
-  function setStatus(online) {
-    const dot = document.getElementById('statusDot');
-    const txt = document.getElementById('statusText');
-    if (online) {
-      dot.className = 'status-dot online';
-      txt.textContent = 'API онлайн';
-      txt.style.color = 'var(--green)';
-    } else {
-      dot.className = 'status-dot error';
-      txt.textContent = 'Ошибка подключения';
-      txt.style.color = 'var(--accent)';
-    }
-  }
-
-  // ── STATS ──────────────────────────────────────────────────────
-
-  async function loadStats() {
-    try {
-      const res = await fetch(`${API}/stats`);
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      setStatus(true);
-
-      // Показываем числа
-      const fields = [
-        ['skTotal', 'statTotal', data.documents.total],
-        ['skProcessed', 'statProcessed', data.documents.processed],
-        ['skUrgent', 'statUrgent', data.documents.urgent],
-        ['skSubs', 'statSubs', data.subscribers],
-      ];
-
-      fields.forEach(([skId, valId, val]) => {
-        document.getElementById(skId).style.display = 'none';
-        const el = document.getElementById(valId);
-        el.textContent = val ?? '0';
-        el.style.display = 'block';
-      });
-
-      // Срочные — красным
-      document.getElementById('statUrgent').style.color = 'var(--accent)';
-
-      // Источники
-      const s = data.sources || {};
-      document.getElementById('srcPravo').textContent = s['pravo.gov.ru'] ?? 0;
-      document.getElementById('srcNalog').textContent = s['nalog.gov.ru'] ?? 0;
-      document.getElementById('srcCbr').textContent = s['cbr.ru'] ?? 0;
-
-    } catch (e) {
-      setStatus(false);
-      ['skTotal','skProcessed','skUrgent','skSubs'].forEach(id => {
-        const sk = document.getElementById(id);
-        sk.style.background = 'rgba(200,57,43,0.08)';
-      });
-    }
-  }
-
-  // ── DOCUMENTS ─────────────────────────────────────────────────
-
-  // Маппинг val -> source param
-  const SOURCE_MAP = {
-    pravo: 'pravo.gov.ru', nalog: 'nalog.gov.ru', cbr: 'cbr.ru',
-    consultant: 'consultant.ru', rg: 'rg.ru'
-  };
-
-  function buildParams(offset = 0) {
-    const params = new URLSearchParams({ limit: PAGE_SIZE, offset });
-    params.set('order', currentSortOrder === 'old' ? 'asc' : 'desc');
-
-    const hasUrgent = selectedSites.some(s => s.val === 'urgent');
-    if (hasUrgent) { params.set('urgency', 'true'); return params.toString(); }
-
-    // Источники (может быть несколько)
-    const sources = selectedSites
-      .filter(s => SOURCE_MAP[s.val])
-      .map(s => SOURCE_MAP[s.val]);
-    if (sources.length === 1) params.set('source', sources[0]);
-    // Если несколько — API не поддерживает, фильтруем на клиенте (см. loadDocs)
-
-    return params.toString();
-  }
-
-  function getDocsUrl(offset) {
-    const hasMy = selectedSites.some(s => s.val === 'my');
-    if (hasMy && CR_TOKEN) {
-      return `${API}/documents/my?limit=${PAGE_SIZE}&offset=${offset}`;
-    }
-    return `${API}/documents?${buildParams(offset)}`;
-  }
-
-  function renderDoc(doc, index) {
-    const tags = (doc.tags || []).slice(0, 5);
-    const tagsHtml = tags.length
-      ? `<div class="doc-tags">${tags.map(t => `<span class="doc-tag">${t}</span>`).join('')}</div>`
-      : '';
-
-    const urgentBadge = doc.urgency
-      ? `<span class="doc-urgent">⚠ Срочно</span>`
-      : '';
-
-    const summary = doc.summary
-      ? `<p class="doc-summary">${doc.summary}</p>`
-      : `<p class="doc-summary" style="opacity:0.35;font-style:italic;">Анализ ИИ в процессе...</p>`;
-
-    return `
-      <div class="doc-card">
-        <span class="doc-index">${String(index).padStart(2, '0')}</span>
-        <div class="doc-body">
-          <div class="doc-meta">
-            <span class="doc-source">${doc.source}</span>
-            <span class="doc-date">${formatDate(doc.published_at)}</span>
-            ${urgentBadge}
-          </div>
-          <h3 class="doc-title">${doc.title}</h3>
-          ${summary}
-          ${tagsHtml}
-        </div>
-        <a class="doc-link" href="${doc.url}" target="_blank" rel="noopener">Открыть →</a>
-      </div>
-    `;
-  }
-
-  async function loadDocs(reset = true) {
-    if (reset) {
-      currentOffset = 0;
-      document.getElementById('docList').innerHTML = `
-        <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-        <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-        <div class="doc-skeleton"><div class="sk-line sk-title"></div><div class="sk-line sk-summary"></div><div class="sk-line sk-summary2"></div></div>
-      `;
-    }
-
-    try {
-      const headers = CR_TOKEN ? { 'Authorization': `Bearer ${CR_TOKEN}` } : {};
-      const res = await fetch(getDocsUrl(currentOffset), { headers });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      totalDocs = data.total;
-      const docs = data.documents || [];
-
-      if (reset) document.getElementById('docList').innerHTML = '';
-
-      document.getElementById('docsCount').textContent = `${totalDocs} документов`;
-
-      if (docs.length === 0 && reset) {
-        document.getElementById('docList').innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">📭</div>
-            <div class="empty-title">Документов пока нет</div>
-            <div class="empty-sub">Запустите парсинг, чтобы загрузить первые данные</div>
-          </div>
-        `;
-      } else {
-        const list = document.getElementById('docList');
-        docs.forEach((doc, i) => {
-          list.insertAdjacentHTML('beforeend', renderDoc(doc, currentOffset + i + 1));
-        });
-        currentOffset += docs.length;
+  // Filter chips interaction
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      if (this.classList.contains('urgent-chip')) {
+        this.classList.toggle('active');
+        return;
       }
-
-      // Показываем "загрузить ещё"
-      const loadMoreWrap = document.getElementById('loadMoreWrap');
-      if (currentOffset < totalDocs) {
-        loadMoreWrap.style.display = 'flex';
-        document.getElementById('loadMoreBtn').disabled = false;
-      } else {
-        loadMoreWrap.style.display = 'none';
-      }
-
-    } catch (e) {
-      document.getElementById('docsCount').textContent = 'ошибка загрузки';
-      if (reset) {
-        document.getElementById('docList').innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">⚠</div>
-            <div class="empty-title">Ошибка соединения</div>
-            <div class="empty-sub">Не удалось подключиться к API. Проверьте что сервис запущен на Railway.</div>
-          </div>
-        `;
-      }
-    }
-  }
-
-  async function loadMore() {
-    const btn = document.getElementById('loadMoreBtn');
-    btn.disabled = true;
-    btn.textContent = 'Загрузка...';
-    await loadDocs(false);
-    btn.textContent = 'Загрузить ещё';
-  }
-
-  async function loadAll() {
-    const icon = document.getElementById('refreshIcon');
-    icon.classList.add('spin');
-    await Promise.all([loadStats(), loadDocs(true)]);
-    icon.classList.remove('spin');
-  }
-
-  // ── FILTER BAR ────────────────────────────────────────────────
-
-  let currentSortOrder = 'new';
-  let selectedSites = []; // массив выбранных сайтов [{val, label}]
-
-  // Закрываем dropdown при клике вне
-  document.addEventListener('click', function(e) {
-    const wrap = document.getElementById('siteDropdownWrap');
-    if (wrap && !wrap.contains(e.target)) {
-      document.getElementById('siteDropdownMenu').style.display = 'none';
-    }
-  });
-
-  function toggleSiteDropdown(e) {
-    e.stopPropagation();
-    const menu = document.getElementById('siteDropdownMenu');
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-  }
-
-  function toggleSite(val, label) {
-    const idx = selectedSites.findIndex(s => s.val === val);
-    if (idx === -1) {
-      // Особые фильтры — только один одновременно
-      if (val === 'my' || val === 'urgent') {
-        selectedSites = [{val, label}];
-      } else {
-        // Убираем my/urgent если были
-        selectedSites = selectedSites.filter(s => s.val !== 'my' && s.val !== 'urgent');
-        selectedSites.push({val, label});
-      }
-    } else {
-      selectedSites.splice(idx, 1);
-    }
-    updateDropdownUI();
-    updatePills();
-    loadDocs(true);
-  }
-
-  function removeSite(val) {
-    selectedSites = selectedSites.filter(s => s.val !== val);
-    updateDropdownUI();
-    updatePills();
-    loadDocs(true);
-  }
-
-  function updateDropdownUI() {
-    // Обновляем галочки в меню
-    document.querySelectorAll('.site-option').forEach(el => {
-      const onclick = el.getAttribute('onclick');
-      const match = onclick && onclick.match(/toggleSite\('([^']+)'/);
-      if (match) {
-        el.classList.toggle('selected', selectedSites.some(s => s.val === match[1]));
-      }
-    });
-    // Обновляем лейбл кнопки
-    const btn = document.getElementById('siteDropdownLabel');
-    btn.textContent = selectedSites.length === 0 ? 'Все сайты'
-      : selectedSites.length === 1 ? selectedSites[0].label
-      : `${selectedSites.length} сайта`;
-  }
-
-  function setSortOrder(val) {
-    currentSortOrder = val;
-    document.getElementById('btnNew').classList.toggle('active', val === 'new');
-    document.getElementById('btnOld').classList.toggle('active', val === 'old');
-    updatePills();
-    loadDocs(true);
-  }
-
-  function updatePills() {
-    const pills = document.getElementById('pills');
-    pills.innerHTML = '';
-    selectedSites.forEach(s => {
-      pills.appendChild(makePill(s.label, () => removeSite(s.val)));
-    });
-    if (currentSortOrder !== 'new') {
-      pills.appendChild(makePill('↓ Старые', () => setSortOrder('new')));
-    }
-  }
-
-  function makePill(label, onRemove) {
-    const d = document.createElement('div');
-    d.className = 'pill';
-    d.innerHTML = `${label} <span class="pill-x">✕</span>`;
-    d.querySelector('.pill-x').onclick = onRemove;
-    return d;
-  }
-
-  // ── FILTER (legacy) ───────────────────────────────────────────
-
-  function setPersonal(btn) { /* legacy — handled by select */ }
-  function setFilter(filter, btn) { /* legacy — handled by select */ }
-
-  // ── PARSE TRIGGER ─────────────────────────────────────────────
-
-  async function triggerParse() {
-    const btn = document.getElementById('parseBtn');
-    btn.disabled = true;
-    btn.textContent = '▶ Запускаем...';
-
-    try {
-      const res = await fetch(`${API}/admin/parse-now`, { method: 'POST' });
-      if (!res.ok) throw new Error();
-      showToast('✓ Парсинг запущен в фоне. Обновите страницу через 1–2 минуты.', 'success');
-    } catch (e) {
-      showToast('✗ Ошибка запуска парсинга. Проверьте API.', 'error');
-    } finally {
-      setTimeout(() => {
-        btn.disabled = false;
-        btn.textContent = '▶ Запустить парсинг';
-      }, 3000);
-    }
-  }
-
-  // ── BURGER ────────────────────────────────────────────────────
-
-  const burger = document.getElementById('burger');
-  const mobileMenu = document.getElementById('mobileMenu');
-  burger.addEventListener('click', () => {
-    burger.classList.toggle('open');
-    mobileMenu.classList.toggle('open');
-    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
-  });
-  mobileMenu.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      burger.classList.remove('open');
-      mobileMenu.classList.remove('open');
-      document.body.style.overflow = '';
+      document.querySelectorAll('.filter-chip:not(.urgent-chip)').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
     });
   });
 
-  // ── INIT ──────────────────────────────────────────────────────
+  // Industry buttons
+  document.querySelectorAll('.industry-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
 
-  if (CR_USER) {
-    const panel = document.getElementById('userPanel');
-    if (panel) {
-      panel.style.display = 'flex';
-      document.getElementById('userName').textContent = CR_USER.name || CR_USER.email;
-    }
-  }
+  // Nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
 
-  function logout() {
-    fetch(`${API}/auth/logout`, { method: 'POST', headers: CR_TOKEN ? { 'Authorization': `Bearer ${CR_TOKEN}` } : {} }).catch(()=>{});
-    localStorage.removeItem('cr_token');
-    localStorage.removeItem('cr_user');
-    window.location.href = 'login.html';
-  }
+  // Search highlight
+  const search = document.querySelector('.search-input');
+  search.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.doc-card').forEach(card => {
+      const text = card.innerText.toLowerCase();
+      card.style.opacity = (!q || text.includes(q)) ? '1' : '0.3';
+    });
+  });
 
-
-  // ── АВТОФИЛЬТР ПО ОТРАСЛИ ПОСЛЕ ОНБОРДИНГА ────────────────
-  const INDUSTRY_SOURCE_MAP = {
-    bank: 'cbr', insurance: 'cbr', telecom: 'nalog',
-    retail: 'nalog', pharma: 'nalog', construction: 'nalog',
-    energy: 'nalog', manufacturing: 'nalog'
-  };
-
-  function applyIndustryFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const industry = params.get('industry');
-    if (!industry) return;
-
-    // Показываем приветственный тост
-    setTimeout(() => showToast(`✓ Мониторинг настроен под вашу отрасль`, 'success'), 500);
-
-    // Предвыбираем "Мои" если есть токен, иначе ничего
-    if (CR_TOKEN) {
-      selectedSites = [{val: 'my', label: 'Мои'}];
-      updateDropdownUI();
-      updatePills();
-    }
-  }
-
-  applyIndustryFromUrl();
-  loadAll();
-
-  // Автообновление каждые 2 минуты
-  setInterval(loadStats, 120000);
+  // Page buttons
+  document.querySelectorAll('.page-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (this.textContent === '‹' || this.textContent === '›') return;
+      document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
 </script>
 </body>
 </html>
